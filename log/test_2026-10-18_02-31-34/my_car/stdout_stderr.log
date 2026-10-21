@@ -1,0 +1,263 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.12, pytest-6.2.5, py-1.10.0, pluggy-0.13.0
+cachedir: /home/zrh/ros2_ws/build/my_car/.pytest_cache
+rootdir: /home/zrh/ros2_ws/src/my_car
+plugins: launch-testing-ros-0.19.14, ament-pep257-0.12.15, ament-lint-0.12.15, launch-testing-1.0.15, ament-xmllint-0.12.15, ament-copyright-0.12.15, ament-flake8-0.12.15, cov-3.0.0, colcon-core-0.21.3
+collected 3 items
+
+test/test_copyright.py s                                                 [ 33%]
+test/test_flake8.py F                                                    [ 66%]
+=============================== warnings summary ===============================
+test/test_flake8.py::test_flake8
+test/test_flake8.py::test_flake8
+  Warning: SelectableGroups dict interface is deprecated. Use select.
+
+-- Docs: https://docs.pytest.org/en/stable/warnings.html
+test/test_pep257.py F                                                    [100%]
+
+=================================== FAILURES ===================================
+_________________________________ test_flake8 __________________________________
+test/test_flake8.py:23: in test_flake8
+    assert rc == 0, \
+E   AssertionError: Found 35 code style errors / warnings:
+E     ./setup.py:40:1: W391 blank line at end of file
+E     ./my_car/teleop_node.py:29:1: E302 expected 2 blank lines, found 1
+E     ./my_car/teleop_node.py:41:31: E261 at least two spaces before inline comment
+E     ./my_car/teleop_node.py:49:1: W293 blank line contains whitespace
+E     ./my_car/teleop_node.py:59:1: W293 blank line contains whitespace
+E     ./my_car/teleop_node.py:62:40: E261 at least two spaces before inline comment
+E     ./my_car/teleop_node.py:64:1: W293 blank line contains whitespace
+E     ./my_car/teleop_node.py:65:53: E261 at least two spaces before inline comment
+E     ./my_car/teleop_node.py:68:34: E701 multiple statements on one line (colon)
+E     ./my_car/teleop_node.py:69:36: E701 multiple statements on one line (colon)
+E     ./my_car/teleop_node.py:71:42: E701 multiple statements on one line (colon)
+E     ./my_car/teleop_node.py:72:29: E701 multiple statements on one line (colon)
+E     ./my_car/teleop_node.py:74:42: E701 multiple statements on one line (colon)
+E     ./my_car/teleop_node.py:75:29: E701 multiple statements on one line (colon)
+E     ./my_car/teleop_node.py:76:55: E701 multiple statements on one line (colon)
+E     ./my_car/teleop_node.py:77:55: E701 multiple statements on one line (colon)
+E     ./my_car/teleop_node.py:79:29: E261 at least two spaces before inline comment
+E     ./my_car/teleop_node.py:80:1: W293 blank line contains whitespace
+E     ./my_car/teleop_node.py:94:1: W293 blank line contains whitespace
+E     ./my_car/teleop_node.py:99:1: E302 expected 2 blank lines, found 1
+E     ./my_car/teleop_node.py:113:1: E305 expected 2 blank lines after class or function definition, found 1
+E     ./my_car/teleop_node.py:114:11: W292 no newline at end of file
+E     ./my_car/car_node.py:7:1: E302 expected 2 blank lines, found 1
+E     ./my_car/car_node.py:30:32: E701 multiple statements on one line (colon)
+E     ./my_car/car_node.py:31:32: E701 multiple statements on one line (colon)
+E     ./my_car/car_node.py:32:32: E701 multiple statements on one line (colon)
+E     ./my_car/car_node.py:35:26: E221 multiple spaces before operator
+E     ./my_car/car_node.py:36:26: E221 multiple spaces before operator
+E     ./my_car/car_node.py:38:1: W293 blank line contains whitespace
+E     ./my_car/car_node.py:44:1: W293 blank line contains whitespace
+E     ./my_car/car_node.py:50:1: W293 blank line contains whitespace
+E     ./my_car/car_node.py:53:1: E302 expected 2 blank lines, found 1
+E     ./my_car/car_node.py:61:34: E261 at least two spaces before inline comment
+E     ./my_car/car_node.py:65:1: E305 expected 2 blank lines after class or function definition, found 1
+E     ./my_car/car_node.py:66:11: W292 no newline at end of file
+E   assert 1 == 0
+----------------------------- Captured stdout call -----------------------------
+
+./setup.py:40:1: W391 blank line at end of file
+
+^
+
+./my_car/teleop_node.py:29:1: E302 expected 2 blank lines, found 1
+class Teleop(Node):
+^
+
+./my_car/teleop_node.py:41:31: E261 at least two spaces before inline comment
+        self.key_timeout = 0.1 # 100毫秒没按键，就认为松手了
+                              ^
+
+./my_car/teleop_node.py:49:1: W293 blank line contains whitespace
+        
+^
+
+./my_car/teleop_node.py:59:1: W293 blank line contains whitespace
+                    
+^
+
+./my_car/teleop_node.py:62:40: E261 at least two spaces before inline comment
+                    elif key == '\x03': # Ctrl+C
+                                       ^
+
+./my_car/teleop_node.py:64:1: W293 blank line contains whitespace
+                    
+^
+
+./my_car/teleop_node.py:65:53: E261 at least two spaces before inline comment
+                    self.last_key_time = time.time() # 刷新按键时间
+                                                    ^
+
+./my_car/teleop_node.py:68:34: E701 multiple statements on one line (colon)
+                    if key == 'w': x = self.speed
+                                 ^
+
+./my_car/teleop_node.py:69:36: E701 multiple statements on one line (colon)
+                    elif key == 's': x = -self.speed
+                                   ^
+
+./my_car/teleop_node.py:71:42: E701 multiple statements on one line (colon)
+                        if self.holonomic: y = self.speed
+                                         ^
+
+./my_car/teleop_node.py:72:29: E701 multiple statements on one line (colon)
+                        else: yaw = self.turn
+                            ^
+
+./my_car/teleop_node.py:74:42: E701 multiple statements on one line (colon)
+                        if self.holonomic: y = -self.speed
+                                         ^
+
+./my_car/teleop_node.py:75:29: E701 multiple statements on one line (colon)
+                        else: yaw = -self.turn
+                            ^
+
+./my_car/teleop_node.py:76:55: E701 multiple statements on one line (colon)
+                    elif key == 'q' and self.holonomic: yaw = self.turn
+                                                      ^
+
+./my_car/teleop_node.py:77:55: E701 multiple statements on one line (colon)
+                    elif key == 'e' and self.holonomic: yaw = -self.turn
+                                                      ^
+
+./my_car/teleop_node.py:79:29: E261 at least two spaces before inline comment
+                        pass # 空格就是强制发 0 速度
+                            ^
+
+./my_car/teleop_node.py:80:1: W293 blank line contains whitespace
+                
+^
+
+./my_car/teleop_node.py:94:1: W293 blank line contains whitespace
+                
+^
+
+./my_car/teleop_node.py:99:1: E302 expected 2 blank lines, found 1
+def main():
+^
+
+./my_car/teleop_node.py:113:1: E305 expected 2 blank lines after class or function definition, found 1
+if __name__ == '__main__':
+^
+
+./my_car/teleop_node.py:114:11: W292 no newline at end of file
+    main()          ^
+
+./my_car/car_node.py:7:1: E302 expected 2 blank lines, found 1
+class CarNode(Node):
+^
+
+./my_car/car_node.py:30:32: E701 multiple statements on one line (colon)
+        if math.isnan(target_x): target_x = 0.0
+                               ^
+
+./my_car/car_node.py:31:32: E701 multiple statements on one line (colon)
+        if math.isnan(target_y): target_y = 0.0
+                               ^
+
+./my_car/car_node.py:32:32: E701 multiple statements on one line (colon)
+        if math.isnan(target_z): target_z = 0.0
+                               ^
+
+./my_car/car_node.py:35:26: E221 multiple spaces before operator
+        self.cmd.linear.x  = max(-self.MAX_LIN, min(self.MAX_LIN, target_x))
+                         ^
+
+./my_car/car_node.py:36:26: E221 multiple spaces before operator
+        self.cmd.linear.y  = max(-self.MAX_LIN, min(self.MAX_LIN, target_y))
+                         ^
+
+./my_car/car_node.py:38:1: W293 blank line contains whitespace
+        
+^
+
+./my_car/car_node.py:44:1: W293 blank line contains whitespace
+        
+^
+
+./my_car/car_node.py:50:1: W293 blank line contains whitespace
+            
+^
+
+./my_car/car_node.py:53:1: E302 expected 2 blank lines, found 1
+def main(args=None):
+^
+
+./my_car/car_node.py:61:34: E261 at least two spaces before inline comment
+        node.pub.publish(Twist()) # 退出前发一次停止
+                                 ^
+
+./my_car/car_node.py:65:1: E305 expected 2 blank lines after class or function definition, found 1
+if __name__ == '__main__':
+^
+
+./my_car/car_node.py:66:11: W292 no newline at end of file
+    main()          ^
+
+2     E221 multiple spaces before operator
+5     E261 at least two spaces before inline comment
+4     E302 expected 2 blank lines, found 1
+2     E305 expected 2 blank lines after class or function definition, found 1
+11    E701 multiple statements on one line (colon)
+2     W292 no newline at end of file
+8     W293 blank line contains whitespace
+1     W391 blank line at end of file
+
+10 files checked
+35 errors
+
+'E'-type errors: 24
+'W'-type errors: 11
+
+Checked files:
+
+* ./setup.py
+* ./launch/car_world.launch.py
+* ./launch/slam_mapping.launch.py
+* ./test/test_flake8.py
+* ./test/test_copyright.py
+* ./test/test_pep257.py
+* ./my_car/__init__.py
+* ./my_car/teleop_node.py
+* ./my_car/launch_env.py
+* ./my_car/car_node.py
+----------------------------- Captured stderr call -----------------------------
+option --max-complexity: please update from optparse string `type=` to argparse callable `type=` -- this will be an error in the future
+_________________________________ test_pep257 __________________________________
+test/test_pep257.py:23: in test_pep257
+    assert rc == 0, 'Found code style errors / warnings'
+E   AssertionError: Found code style errors / warnings
+E   assert 1 == 0
+----------------------------- Captured stdout call -----------------------------
+checking ./launch/car_world.launch.py
+./launch/car_world.launch.py:1 at module level: D213: Multi-line docstring summary should start at the second line
+./launch/car_world.launch.py:1 at module level: D400: First line should end with a period (not '。')
+./launch/car_world.launch.py:1 at module level: D415: First line should end with a period, question mark, or exclamation point (not '。')
+checking ./launch/slam_mapping.launch.py
+./launch/slam_mapping.launch.py:1 at module level: D213: Multi-line docstring summary should start at the second line
+./launch/slam_mapping.launch.py:1 at module level: D400: First line should end with a period (not '。')
+./launch/slam_mapping.launch.py:1 at module level: D415: First line should end with a period, question mark, or exclamation point (not '。')
+checking ./my_car/__init__.py
+checking ./my_car/car_node.py
+checking ./my_car/launch_env.py
+./my_car/launch_env.py:1 at module level: D400: First line should end with a period (not '。')
+./my_car/launch_env.py:1 at module level: D415: First line should end with a period, question mark, or exclamation point (not '。')
+./my_car/launch_env.py:15 in public function `mesa_environment`: D213: Multi-line docstring summary should start at the second line
+./my_car/launch_env.py:15 in public function `mesa_environment`: D400: First line should end with a period (not '。')
+./my_car/launch_env.py:15 in public function `mesa_environment`: D415: First line should end with a period, question mark, or exclamation point (not '。')
+checking ./my_car/teleop_node.py
+checking ./setup.py
+checking ./test/test_copyright.py
+checking ./test/test_flake8.py
+checking ./test/test_pep257.py
+checking test/test_copyright.py
+checking test/test_flake8.py
+checking test/test_pep257.py
+11 errors
+-------- generated xml file: /home/zrh/ros2_ws/build/my_car/pytest.xml ---------
+=========================== short test summary info ============================
+FAILED test/test_flake8.py::test_flake8 - AssertionError: Found 35 code style...
+FAILED test/test_pep257.py::test_pep257 - AssertionError: Found code style er...
+=================== 2 failed, 1 skipped, 2 warnings in 0.20s ===================

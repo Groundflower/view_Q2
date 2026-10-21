@@ -1,0 +1,34 @@
+[0.000000] (-) TimerEvent: {}
+[0.000108] (my_car) JobQueued: {'identifier': 'my_car', 'dependencies': OrderedDict()}
+[0.000129] (my_car) JobStarted: {'identifier': 'my_car'}
+[0.099142] (-) TimerEvent: {}
+[0.201043] (-) TimerEvent: {}
+[0.301265] (-) TimerEvent: {}
+[0.401466] (-) TimerEvent: {}
+[0.454047] (my_car) Command: {'cmd': ['/usr/bin/python3', '-W', 'ignore:setup.py install is deprecated', '-W', 'ignore:easy_install command is deprecated', 'setup.py', 'develop', '--editable', '--build-directory', '/home/zrh/ros2_ws/build/my_car/build', '--no-deps', 'symlink_data', '--force'], 'cwd': '/home/zrh/ros2_ws/build/my_car', 'env': OrderedDict([('GJS_DEBUG_TOPICS', 'JS ERROR;JS LOG'), ('LANGUAGE', 'zh_CN:en_US:en'), ('USER', 'zrh'), ('LC_TIME', 'zh_CN.UTF-8'), ('XDG_SESSION_TYPE', 'x11'), ('XDG_CACHE_HOME', '/tmp'), ('SHLVL', '0'), ('LD_LIBRARY_PATH', '/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib'), ('HOME', '/home/zrh'), ('CHROME_DESKTOP', 'reasonix.desktop'), ('OLDPWD', '/home/zrh/ros2_ws/src/my_car'), ('DESKTOP_SESSION', 'ubuntu'), ('GIO_LAUNCHED_DESKTOP_FILE', '/usr/share/applications/reasonix.desktop'), ('ROS_PYTHON_VERSION', '3'), ('GNOME_SHELL_SESSION_MODE', 'ubuntu'), ('GTK_MODULES', 'gail:atk-bridge'), ('PAGER', 'cat'), ('LC_MONETARY', 'zh_CN.UTF-8'), ('MANAGERPID', '1965'), ('SYSTEMD_EXEC_PID', '2299'), ('NO_COLOR', '1'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1000/bus'), ('GIO_LAUNCHED_DESKTOP_FILE_PID', '41801'), ('TMPDIR', '/tmp'), ('ROS_DISTRO', 'humble'), ('GTK_IM_MODULE', 'ibus'), ('LOGNAME', 'zrh'), ('TEMP', '/tmp'), ('JOURNAL_STREAM', '8:3919'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('XDG_SESSION_CLASS', 'user'), ('npm_config_cache', '/tmp'), ('USERNAME', 'zrh'), ('TERM', 'dumb'), ('GNOME_DESKTOP_SESSION_ID', 'this-is-deprecated'), ('BASH_SILENCE_DEPRECATION_WARNING', '1'), ('FC_FONTATIONS', '1'), ('ROS_LOCALHOST_ONLY', '0'), ('WINDOWPATH', '2'), ('PATH', '/home/zrh/.local/bin:/home/zrh/bin:/opt/ros/humble/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin'), ('SESSION_MANAGER', 'local/zrh-ThinkBook-14-G7-IAH:@/tmp/.ICE-unix/2274,unix/zrh-ThinkBook-14-G7-IAH:/tmp/.ICE-unix/2274'), ('INVOCATION_ID', 'c9ac05907e524d77812acff1edf23ba1'), ('PAPERSIZE', 'a4'), ('XDG_MENU_PREFIX', 'gnome-'), ('LC_ADDRESS', 'zh_CN.UTF-8'), ('XDG_RUNTIME_DIR', '/run/user/1000'), ('GDK_BACKEND', 'x11'), ('DISPLAY', ':1'), ('LANG', 'zh_CN.UTF-8'), ('XDG_CURRENT_DESKTOP', 'ubuntu:GNOME'), ('LC_TELEPHONE', 'zh_CN.UTF-8'), ('XMODIFIERS', '@im=ibus'), ('XDG_SESSION_DESKTOP', 'ubuntu'), ('XAUTHORITY', '/run/user/1000/gdm/Xauthority'), ('TMP', '/tmp'), ('SSH_AGENT_LAUNCHER', 'gnome-keyring'), ('SSH_AUTH_SOCK', '/run/user/1000/keyring/ssh'), ('AMENT_PREFIX_PATH', '/opt/ros/humble'), ('SHELL', '/bin/bash'), ('LC_NAME', 'zh_CN.UTF-8'), ('GOCACHE', '/tmp'), ('REASONIX_DESKTOP_SERVICE', '/usr/bin/reasonix-desktop'), ('QT_ACCESSIBILITY', '1'), ('NO_AT_BRIDGE', '1'), ('GDMSESSION', 'ubuntu'), ('LC_MEASUREMENT', 'zh_CN.UTF-8'), ('GPG_AGENT_INFO', '/run/user/1000/gnupg/S.gpg-agent:0:1'), ('GJS_DEBUG_OUTPUT', 'stderr'), ('LC_IDENTIFICATION', 'zh_CN.UTF-8'), ('GIT_PAGER', 'cat'), ('QT_IM_MODULE', 'ibus'), ('NPM_CONFIG_CACHE', '/tmp'), ('PWD', '/home/zrh/ros2_ws/build/my_car'), ('XDG_CONFIG_DIRS', '/etc/xdg/xdg-ubuntu:/etc/xdg'), ('XDG_DATA_DIRS', '/usr/share/ubuntu:/usr/share/gnome:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop'), ('PYTHONPATH', '/home/zrh/ros2_ws/build/my_car/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/zrh/ros2_ws/install/my_car/lib/python3.10/site-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages'), ('LC_NUMERIC', 'zh_CN.UTF-8'), ('LC_PAPER', 'zh_CN.UTF-8'), ('COLCON', '1')]), 'shell': False}
+[0.502690] (-) TimerEvent: {}
+[0.578590] (my_car) StdoutLine: {'line': b'running develop\n'}
+[0.604610] (-) TimerEvent: {}
+[0.642810] (my_car) StdoutLine: {'line': b'running egg_info\n'}
+[0.642976] (my_car) StdoutLine: {'line': b'writing my_car.egg-info/PKG-INFO\n'}
+[0.643041] (my_car) StdoutLine: {'line': b'writing dependency_links to my_car.egg-info/dependency_links.txt\n'}
+[0.643086] (my_car) StdoutLine: {'line': b'writing entry points to my_car.egg-info/entry_points.txt\n'}
+[0.643124] (my_car) StdoutLine: {'line': b'writing requirements to my_car.egg-info/requires.txt\n'}
+[0.643160] (my_car) StdoutLine: {'line': b'writing top-level names to my_car.egg-info/top_level.txt\n'}
+[0.643196] (my_car) StdoutLine: {'line': b"reading manifest file 'my_car.egg-info/SOURCES.txt'\n"}
+[0.643327] (my_car) StdoutLine: {'line': b"writing manifest file 'my_car.egg-info/SOURCES.txt'\n"}
+[0.645161] (my_car) StdoutLine: {'line': b'running build_ext\n'}
+[0.645398] (my_car) StdoutLine: {'line': b'Creating /home/zrh/ros2_ws/install/my_car/lib/python3.10/site-packages/my-car.egg-link (link to .)\n'}
+[0.645456] (my_car) StdoutLine: {'line': b'Installing car_node script to /home/zrh/ros2_ws/install/my_car/lib/my_car\n'}
+[0.645507] (my_car) StdoutLine: {'line': b'Installing teleop_node script to /home/zrh/ros2_ws/install/my_car/lib/my_car\n'}
+[0.645554] (my_car) StdoutLine: {'line': b'\n'}
+[0.645595] (my_car) StdoutLine: {'line': b'Installed /home/zrh/ros2_ws/build/my_car\n'}
+[0.645640] (my_car) StdoutLine: {'line': b'running symlink_data\n'}
+[0.645679] (my_car) StdoutLine: {'line': b'symbolically linking /home/zrh/ros2_ws/build/my_car/resource/my_car -> /home/zrh/ros2_ws/install/my_car/share/ament_index/resource_index/packages\n'}
+[0.645718] (my_car) StdoutLine: {'line': b'symbolically linking /home/zrh/ros2_ws/build/my_car/package.xml -> /home/zrh/ros2_ws/install/my_car/share/my_car\n'}
+[0.645754] (my_car) StdoutLine: {'line': b'symbolically linking /home/zrh/ros2_ws/build/my_car/my_car/Mecanum_car_world.sdf -> /home/zrh/ros2_ws/install/my_car/share/my_car/sdf\n'}
+[0.645789] (my_car) StdoutLine: {'line': b'symbolically linking /home/zrh/ros2_ws/build/my_car/my_car/diff_car_world.sdf -> /home/zrh/ros2_ws/install/my_car/share/my_car/sdf\n'}
+[0.645827] (my_car) StderrLine: {'line': b"error: [Errno 2] No such file or directory: '/home/zrh/ros2_ws/install/my_car/share/my_car/launch/navigation2.launch.py'\n"}
+[0.666429] (my_car) CommandEnded: {'returncode': 1}
+[0.666776] (my_car) JobEnded: {'identifier': 'my_car', 'rc': 1}
+[0.677743] (-) EventReactorShutdown: {}

@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>my_car · ROS 2 仿真建图项目流程图</title>
+<style>
+  :root {
+    --bg: #f4f6fa;
+    --card: #ffffff;
+    --text: #1e293b;
+    --muted: #64748b;
+    --line: #cbd5e1;
+    --user: #dc2626;
+    --userbg: #fef2f2;
+    --ros: #16a34a;
+    --bridge: #d97706;
+    --bridgebg: #fffbeb;
+    --gz: #0284c7;
+    --gzbg: #f0f9ff;
+    --slam: #9333ea;
+    --slambg: #faf5ff;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 44px 24px 90px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", "Noto Sans CJK SC",
+                 "Source Han Sans SC", "Microsoft YaHei", sans-serif;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1060px; margin: 0 auto; }
+
+  h1 { font-size: 27px; margin: 0 0 8px; letter-spacing: -.01em; }
+  .sub { color: var(--muted); font-size: 14px; margin: 0 0 10px; }
+  .sub code { font-family: var(--mono); font-size: 13px; background: #e8edf5; padding: 1px 6px; border-radius: 4px; }
+
+  h2 {
+    font-size: 17px; margin: 52px 0 16px; padding-bottom: 9px;
+    border-bottom: 2px solid #e2e8f0; letter-spacing: .01em;
+  }
+  h2 .num { color: #94a3b8; font-family: var(--mono); margin-right: 8px; font-weight: 400; }
+
+  /* ---------- 启动流程 ---------- */
+  .boot { background: var(--card); border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 20px 22px; }
+  .boot-root {
+    font-family: var(--mono); font-size: 14px; font-weight: 600;
+    background: #1e293b; color: #e2e8f0; padding: 11px 16px; border-radius: 8px;
+    display: inline-block; margin-bottom: 6px;
+  }
+  ul.boot-list { list-style: none; margin: 0; padding: 0 0 0 14px; border-left: 2px dashed #cbd5e1; margin-left: 14px; }
+  ul.boot-list > li { position: relative; padding: 13px 0 13px 22px; }
+  ul.boot-list > li::before {
+    content: ""; position: absolute; left: -8px; top: 21px;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--card); border: 2.5px solid var(--line);
+  }
+  ul.boot-list > li.after::before { border-color: var(--slam); }
+  ul.boot-list > li.now::before  { border-color: var(--gz); }
+  .boot-when {
+    display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .04em;
+    padding: 1px 8px; border-radius: 999px; margin-right: 9px; vertical-align: 1px;
+  }
+  .now .boot-when  { background: #e0f2fe; color: #0369a1; }
+  .after .boot-when{ background: #f3e8ff; color: #7e22ce; }
+  .boot-name { font-weight: 600; font-size: 14.5px; }
+  .boot-note { display: block; color: var(--muted); font-size: 13px; margin-top: 3px; }
+  .boot-note code { font-family: var(--mono); font-size: 12px; background: #eef2f7; padding: 1px 5px; border-radius: 4px; }
+
+  /* ---------- 层 ---------- */
+  .layer {
+    background: var(--card); border: 2px solid var(--line);
+    border-radius: 13px; padding: 15px 18px 18px; position: relative;
+  }
+  .layer-user   { border-color: var(--user);   background: var(--userbg); }
+  .layer-bridge { border-color: var(--bridge); background: var(--bridgebg); }
+  .layer-gz     { border-color: var(--gz);     background: var(--gzbg); }
+  .layer-slam   { border-color: var(--slam);   background: var(--slambg); }
+  .layer-tag {
+    position: absolute; top: -11px; left: 16px;
+    background: inherit; padding: 1px 11px; border-radius: 999px;
+    font-size: 11.5px; font-weight: 700; letter-spacing: .05em;
+    border: 2px solid; border-color: inherit;
+  }
+  .layer-user .layer-tag   { color: var(--user); }
+  .layer-bridge .layer-tag { color: var(--bridge); }
+  .layer-gz .layer-tag     { color: var(--gz); }
+  .layer-slam .layer-tag   { color: var(--slam); }
+
+  .row { display: flex; align-items: center; flex-wrap: wrap; gap: 0; margin-top: 6px; }
+  .row.center { justify-content: center; }
+
+  .node {
+    background: #fff; border: 1.5px solid var(--line); border-radius: 9px;
+    padding: 9px 14px; font-size: 13.5px; font-weight: 600; text-align: center;
+    min-width: 96px;
+  }
+  .node .nm { display: block; }
+  .node .io {
+    display: block; font-family: var(--mono); font-size: 11px;
+    font-weight: 400; color: var(--muted); margin-top: 3px; line-height: 1.5;
+  }
+  .node .io b { color: #b91c1c; font-weight: 600; }   /* 订阅 */
+  .node .io i { color: var(--ros); font-weight: 600; font-style: normal; } /* 发布 */
+  .node.hi { border-color: var(--bridge); box-shadow: 0 0 0 3px #fef3c7; }
+  .node.big { min-width: 240px; }
+  .node .tagline { display:block; font-weight:400; font-size: 11.5px; color: var(--muted); }
+
+  /* 水平箭头 */
+  .harrow { position: relative; flex: 0 0 auto; width: 46px; height: 2px; background: var(--line); margin: 0 4px; align-self: center; }
+  .harrow::after {
+    content: ""; position: absolute; right: -1px; top: 50%; transform: translateY(-50%);
+    border-left: 7px solid var(--line); border-top: 5px solid transparent; border-bottom: 5px solid transparent;
+  }
+  .harrow.wide { width: 74px; }
+  .harrow .lbl {
+    position: absolute; left: 50%; bottom: 7px; transform: translateX(-50%);
+    white-space: nowrap; font-family: var(--mono); font-size: 10.5px; color: var(--muted);
+  }
+
+  /* 竖直箭头（层间） */
+  .vgap {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 7px 0; min-height: 62px; justify-content: center;
+  }
+  .vgap .vline { width: 2px; flex: 1 1 auto; background: var(--line); min-height: 14px; }
+  .vgap .vhead {
+    border-left: 6px solid transparent; border-right: 6px solid transparent;
+    border-top: 9px solid var(--line);
+  }
+  .vgap .vlabel {
+    font-family: var(--mono); font-size: 11.5px; color: #475569;
+    background: var(--bg); padding: 2px 9px; border-radius: 999px;
+    border: 1px solid var(--line); margin: 3px 0; white-space: nowrap;
+  }
+
+  /* ---------- TF 树 ---------- */
+  .tfcard { background: var(--card); border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 34px 22px 26px; overflow-x: auto; }
+  .tfchain { display: flex; align-items: center; justify-content: center; min-width: 900px; }
+  .tfnode {
+    background: #fff; border: 2px solid var(--line); border-radius: 9px;
+    padding: 9px 13px; font-family: var(--mono); font-size: 13px; font-weight: 600;
+    text-align: center; flex: 0 0 auto; position: relative;
+  }
+  .tfnode.map  { border-color: var(--slam);   background: var(--slambg);  color: #6b21a8; }
+  .tfnode.odom { border-color: var(--gz);     background: var(--gzbg);    color: #075985; }
+  .tfnode.bf   { border-color: var(--gz);     background: var(--gzbg);    color: #075985; }
+  .tfnode.ch   { border-color: var(--line);   background: #f8fafc;        color: #334155; }
+  .tfnode.ld   { border-color: var(--user);   background: var(--userbg);  color: #991b1b; }
+  .tfedge { position: relative; flex: 0 0 118px; height: 2px; background: var(--line); margin: 0 2px; }
+  .tfedge::after {
+    content: ""; position: absolute; right: -1px; top: 50%; transform: translateY(-50%);
+    border-left: 8px solid var(--line); border-top: 5.5px solid transparent; border-bottom: 5.5px solid transparent;
+  }
+  .tfedge span {
+    position: absolute; left: 50%; bottom: 9px; transform: translateX(-50%);
+    white-space: nowrap; font-size: 10.5px; color: var(--muted); line-height: 1.35; text-align: center;
+  }
+  .tfedge span b { display: block; font-family: var(--mono); font-size: 10.5px; color: #334155; font-weight: 600; }
+  .tfnote { text-align: center; color: var(--muted); font-size: 12.5px; margin-top: 30px; }
+
+  /* ---------- 表格 ---------- */
+  table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 12px; overflow: hidden; border: 1.5px solid #e2e8f0; font-size: 13px; }
+  th, td { padding: 9px 13px; text-align: left; border-bottom: 1px solid #eef2f7; vertical-align: top; }
+  th { background: #f1f5f9; font-size: 12px; letter-spacing: .04em; color: #475569; font-weight: 700; }
+  tr:last-child td { border-bottom: none; }
+  td code, th code { font-family: var(--mono); font-size: 12px; }
+  .node code, .tfnote code { font-family: inherit; background: none; padding: 0; }
+  .cellnote { display: inline-block; margin-top: 3px; font-size: 11.5px; color: var(--muted); }
+  .pill { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+  .pill.ros2    { background: #dbeafe; color: #1d4ed8; }  /* ROS 2 内部 */
+  .pill.to-gz   { background: #dcfce7; color: #15803d; }  /* ROS → Gazebo */
+  .pill.from-gz { background: #fde68a; color: #92400e; }  /* Gazebo → ROS */
+
+  /* ---------- 坑 ---------- */
+  .traps { display: grid; gap: 12px; }
+  .trap { background: var(--card); border: 1.5px solid #e2e8f0; border-left: 5px solid var(--bridge); border-radius: 9px; padding: 13px 17px; }
+  .trap h4 { margin: 0 0 5px; font-size: 14px; }
+  .trap p { margin: 0; font-size: 13px; color: #334155; }
+  .trap code { font-family: var(--mono); font-size: 12px; background: #eef2f7; padding: 1px 5px; border-radius: 4px; }
+  .bad { color: #b91c1c; font-weight: 700; }
+
+  footer { margin-top: 56px; color: #94a3b8; font-size: 12.5px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>my_car · 激光雷达 SLAM 仿真建图</h1>
+  <p class="sub">
+    Gazebo Fortress（<code>ign gazebo</code>）+ ROS 2 Humble + <code>slam_toolbox</code> + RViz2
+  </p>
+
+  <!-- ============ 0 启动 ============ -->
+  <h2><span class="num">0</span>启动流程</h2>
+  <div class="boot">
+    <div class="boot-root">ros2 launch my_car slam_mapping.launch.py</div>
+    <ul class="boot-list">
+      <li class="now">
+        <span class="boot-when">立刻</span><span class="boot-name">注入 Mesa 渲染环境</span>
+        <span class="boot-note">解析 <code>/opt/mesa-24.3.4/env.sh</code> 里生效的 export，设置 <code>__EGL_VENDOR_LIBRARY_FILENAMES</code>。Gazebo GUI / RViz2 的 OGRE 缺了它会黑屏。必须在拉起这两个窗口<strong>之前</strong>完成。</span>
+      </li>
+      <li class="now">
+        <span class="boot-when">include</span><span class="boot-name">car_world.launch.py —— 仿真与桥接层</span>
+        <span class="boot-note">
+          ① <code>ign gazebo -r car_world.sdf</code>（世界 + 小车 + 系统插件）<br>
+          ② <code>ros_gz_bridge parameter_bridge</code>（5 路话题，跨越 Gazebo / ROS 边界）<br>
+          ③ 两个 <code>static_transform_publisher</code>（<code>base_footprint→chassis→lidar_link</code>）
+        </span>
+      </li>
+      <li class="after">
+        <span class="boot-when">+5 秒</span><span class="boot-name">slam_toolbox + RViz2</span>
+        <span class="boot-note">延迟是为了等 <code>/clock</code> 和 <code>/tf</code> 建立起来，免得开机刷一屏 <code>Failed to compute odom pose</code>（不影响结果，但很吓人）。</span>
+      </li>
+    </ul>
+  </div>
+
+  <!-- ============ 1 数据流 ============ -->
+  <h2><span class="num">1</span>运行时数据流</h2>
+
+  <!-- 层1 用户 -->
+  <div class="layer layer-user">
+    <div class="layer-tag">用户输入 · 遥控链</div>
+    <div class="row center">
+      <div class="node"><span class="nm">键盘</span><span class="io">teleop_key</span></div>
+      <div class="harrow"><span class="lbl">按键</span></div>
+      <div class="node"><span class="nm">teleop_node</span><span class="io"><i>发</i> /teleop/cmd_vel</span></div>
+      <div class="harrow wide"><span class="lbl">/teleop/cmd_vel</span></div>
+      <div class="node"><span class="nm">car_node</span><span class="io"><b>收</b> /teleop/cmd_vel <i>发</i> /cmd_vel<br><span class="tagline">限速 0.8 m/s · 2.0 rad/s<br>0.5 s 无指令自动停车</span></span></div>
+    </div>
+  </div>
+
+  <div class="vgap">
+    <div class="vline"></div>
+    <div class="vlabel">/cmd_vel&nbsp;&nbsp;(ROS → Gazebo)</div>
+    <div class="vline"></div>
+    <div class="vhead"></div>
+  </div>
+
+  <!-- 层2 桥接 -->
+  <div class="layer layer-bridge">
+    <div class="layer-tag">边界 · ros_gz_bridge</div>
+    <div class="row center">
+      <div class="node big hi">
+        <span class="nm">parameter_bridge</span>
+        <span class="io">
+          <strong>ros_gz_bridge</strong> —— 唯一的跨进程通道<br>
+          Gazebo 与 ROS 2 是两个独立进程，<br>话题即使<strong>同名也互不可见</strong>，必须显式转发。<br><br>
+          <i>ROS → GZ</i>&nbsp;&nbsp;<code>/cmd_vel</code><br>
+          <i>GZ → ROS</i>&nbsp;&nbsp;<code>/clock</code> <code>/tf</code> <code>/odom</code> <code>/scan</code>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="vgap">
+    <div class="vline"></div>
+    <div class="vlabel">/cmd_vel&nbsp;&nbsp;(Gazebo ← ROS)</div>
+    <div class="vline"></div>
+    <div class="vhead"></div>
+  </div>
+
+  <!-- 层3 Gazebo -->
+  <div class="layer layer-gz">
+    <div class="layer-tag">Gazebo Fortress · car_world.sdf</div>
+    <div class="row center">
+      <div class="node big">
+        <span class="nm">diff_car 模型</span>
+        <span class="io">
+          <strong>DiffDrive 插件</strong><br>
+          <b>收</b> /cmd_vel → 驱动 left_joint / right_joint<br>
+          轮半径 0.05 m · 轮距 0.25 m<br>
+          <i>发</i> <code>/odom</code> + <code>/tf</code>（odom → base_footprint，50 Hz）
+        </span>
+      </div>
+      <div class="harrow wide"></div>
+      <div class="node big">
+        <span class="nm">gpu_lidar 传感器</span>
+        <span class="io">
+          挂在 <code>lidar_link</code>，离地 0.19 m<br>
+          360° · 720 线 · 10 Hz · 0.1–10 m<br>
+          高斯噪声 σ = 0.01<br>
+          <i>发</i> <code>/scan</code>（<code>frame_id: lidar_link</code>）
+        </span>
+      </div>
+    </div>
+    <div class="row center" style="margin-top:14px">
+      <div class="node" style="min-width:auto">
+        <span class="nm">场地</span>
+        <span class="io">8 × 8 m 四壁围墙 + 3 个圆柱障碍物</span>
+      </div>
+      <div class="node" style="min-width:auto">
+        <span class="nm">世界系统插件</span>
+        <span class="io">Physics · UserCommands · SceneBroadcaster · Contact · Sensors</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="vgap">
+    <div class="vline"></div>
+    <div class="vlabel">/scan&nbsp;&nbsp;/tf&nbsp;&nbsp;/odom&nbsp;&nbsp;/clock&nbsp;&nbsp;(Gazebo → ROS)</div>
+    <div class="vline"></div>
+    <div class="vhead"></div>
+  </div>
+
+  <!-- 层4 SLAM -->
+  <div class="layer layer-slam">
+    <div class="layer-tag">建图 · slam_toolbox + RViz2</div>
+    <div class="row center">
+      <div class="node big">
+        <span class="nm">slam_toolbox</span>
+        <span class="io">
+          <b>收</b> <code>/scan</code> + <code>/tf</code>(odom→base_footprint) + <code>/clock</code><br>
+          <code>base_frame: base_footprint</code> · <code>odom_frame: odom</code><br>
+          <code>use_sim_time: true</code> · resolution 0.05<br>
+          <i>发</i> <code>/map</code> + <code>/tf</code>(<strong>map → odom</strong>)
+        </span>
+      </div>
+      <div class="harrow wide"><span class="lbl">/map</span></div>
+      <div class="node big">
+        <span class="nm">RViz2</span>
+        <span class="io">
+          纯消费者，不参与任何计算<br>
+          显示 <code>/scan</code> <code>/map</code> <code>/odom</code> <code>/tf</code><br>
+          Fixed Frame = <code>map</code>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 2 TF 树 ============ -->
+  <h2><span class="num">2</span>TF 坐标树</h2>
+  <div class="tfcard">
+    <div class="tfchain">
+      <div class="tfnode map">map</div>
+      <div class="tfedge"><span><b>slam_toolbox</b>建图时发布</span></div>
+      <div class="tfnode odom">odom</div>
+      <div class="tfedge"><span><b>DiffDrive 插件</b>50 Hz · z 恒为 0</span></div>
+      <div class="tfnode bf">base_footprint</div>
+      <div class="tfedge"><span><b>静态 z = +0.10</b>车体离地高度</span></div>
+      <div class="tfnode ch">chassis</div>
+      <div class="tfedge"><span><b>静态 z = +0.09</b>雷达实际位置</span></div>
+      <div class="tfnode ld">lidar_link</div>
+    </div>
+    <p class="tfnote">
+      <code>/scan</code> 的时间戳要落在这条链上做变换，缺任何一环 slam_toolbox 就报
+      <code>Failed to compute odom pose</code>
+    </p>
+  </div>
+
+  <!-- ============ 3 话题表 ============ -->
+  <h2><span class="num">3</span>话题对照</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="width:20%">话题</th>
+        <th style="width:24%">消息类型</th>
+        <th style="width:12%">方向</th>
+        <th>链路</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>/teleop/cmd_vel</code></td>
+        <td><code>geometry_msgs/msg/Twist</code></td>
+        <td><span class="pill ros2">ROS 内部</span></td>
+        <td><code>teleop_node</code> → <code>car_node</code></td>
+      </tr>
+      <tr>
+        <td><code>/cmd_vel</code></td>
+        <td><code>geometry_msgs/msg/Twist</code></td>
+        <td><span class="pill to-gz">ROS → GZ</span></td>
+        <td><code>car_node</code> → bridge → DiffDrive 插件</td>
+      </tr>
+      <tr>
+        <td><code>/scan</code></td>
+        <td><code>sensor_msgs/msg/LaserScan</code></td>
+        <td><span class="pill from-gz">GZ → ROS</span></td>
+        <td>lidar 传感器 → bridge → <code>slam_toolbox</code> + RViz2</td>
+      </tr>
+      <tr>
+        <td><code>/odom</code></td>
+        <td><code>nav_msgs/msg/Odometry</code></td>
+        <td><span class="pill from-gz">GZ → ROS</span></td>
+        <td>DiffDrive → bridge → RViz2<br><span class="cellnote"><code>frame_id: odom</code> / <code>child_frame_id: base_footprint</code></span></td>
+      </tr>
+      <tr>
+        <td><code>/tf</code></td>
+        <td><code>tf2_msgs/msg/TFMessage</code></td>
+        <td><span class="pill from-gz">GZ → ROS</span></td>
+        <td>DiffDrive（<code>odom→base_footprint</code>）→ bridge → <code>slam_toolbox</code> / RViz2</td>
+      </tr>
+      <tr>
+        <td><code>/tf_static</code></td>
+        <td><code>tf2_msgs/msg/TFMessage</code></td>
+        <td><span class="pill ros2">ROS 内部</span></td>
+        <td><code>static_transform_publisher</code> ×2 → 所有 TF 订阅者</td>
+      </tr>
+      <tr>
+        <td><code>/clock</code></td>
+        <td><code>rosgraph_msgs/msg/Clock</code></td>
+        <td><span class="pill from-gz">GZ → ROS</span></td>
+        <td>Gazebo → bridge → 所有开了 <code>use_sim_time</code> 的节点</td>
+      </tr>
+      <tr>
+        <td><code>/map</code></td>
+        <td><code>nav_msgs/msg/OccupancyGrid</code></td>
+        <td><span class="pill ros2">ROS 内部</span></td>
+        <td><code>slam_toolbox</code> → RViz2（transient_local，每 5 s 更新一次）</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ============ 4 关键坑 ============ -->
+  <h2><span class="num">4</span>三个必须记住的点</h2>
+  <div class="traps">
+    <div class="trap">
+      <h4>① 少桥接任何一个话题，整个链路就断</h4>
+      <p>
+        最容易漏的是 <code>/clock</code>。没有它，开了 <code>use_sim_time</code> 的节点时钟永远停在 0，
+        拿系统时间去查仿真时间戳的 TF → 表现为<span class="bad">持续刷 Failed to compute odom pose</span>。
+        其次是 <code>/tf</code>，没有它连 <code>odom → base_footprint</code> 都不存在。
+        这些现在都写进 <code>car_world.launch.py</code> 了，不用再手敲。
+      </p>
+    </div>
+    <div class="trap">
+      <h4>② 机器人根坐标系必须叫 <code>base_footprint</code></h4>
+      <p>
+        <code>slam_toolbox</code> 的默认参数把 <code>base_frame</code> 写死成 <code>base_footprint</code>，
+        它每帧都要先求 <code>odom → base_frame</code>。DiffDrive 的
+        <code>&lt;child_frame_id&gt;</code> 就占着 <code>odom</code> 唯一那个子节点的位置，
+        所以它直接叫 <code>base_footprint</code> 才最省事：车体中心 <code>chassis</code> 用静态变换挂在它下面即可。
+        （DiffDrive 发的是 z 恒为 0 的纯 2D 位姿，本来就是"地面投影点"的语义。）
+      </p>
+    </div>
+    <div class="trap">
+      <h4>③ 同名话题不等于同一个话题</h4>
+      <p>
+        Gazebo 有自己的传输层，ROS 2 有 DDS。<code>/cmd_vel</code> 在两边都存在，
+        但它们是<span class="bad">两个互不相干的通道</span>，只能靠 <code>ros_gz_bridge</code> 搭桥。
+        调试时记住两套查看工具：<code>ign topic -l</code>（Gazebo 侧）和 <code>ros2 topic list</code>（ROS 侧）。
+      </p>
+    </div>
+  </div>
+
+  <footer>my_car · ROS 2 Humble + Gazebo Fortress</footer>
+</div>
+</body>
+</html>

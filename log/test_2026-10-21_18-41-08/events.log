@@ -1,0 +1,281 @@
+[0.000000] (-) TimerEvent: {}
+[0.000474] (my_car) JobQueued: {'identifier': 'my_car', 'dependencies': OrderedDict([('my_car', '/home/zrh/ros2_ws/install/my_car')])}
+[0.000500] (my_car) JobStarted: {'identifier': 'my_car'}
+[0.099850] (-) TimerEvent: {}
+[0.152638] (my_car) Command: {'cmd': ['/usr/bin/python3', '-m', 'pytest'], 'cwd': '/home/zrh/ros2_ws/src/my_car', 'env': OrderedDict([('GJS_DEBUG_TOPICS', 'JS ERROR;JS LOG'), ('LANGUAGE', 'zh_CN:en_US:en'), ('USER', 'zrh'), ('LC_TIME', 'zh_CN.UTF-8'), ('XDG_SESSION_TYPE', 'x11'), ('XDG_CACHE_HOME', '/tmp'), ('SHLVL', '0'), ('LD_LIBRARY_PATH', '/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib'), ('HOME', '/home/zrh'), ('CHROME_DESKTOP', 'reasonix.desktop'), ('OLDPWD', '/home/zrh/ros2_ws'), ('DESKTOP_SESSION', 'ubuntu'), ('GIO_LAUNCHED_DESKTOP_FILE', '/usr/share/applications/reasonix.desktop'), ('ROS_PYTHON_VERSION', '3'), ('GNOME_SHELL_SESSION_MODE', 'ubuntu'), ('GTK_MODULES', 'gail:atk-bridge'), ('PAGER', 'cat'), ('LC_MONETARY', 'zh_CN.UTF-8'), ('MANAGERPID', '1965'), ('SYSTEMD_EXEC_PID', '2299'), ('NO_COLOR', '1'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1000/bus'), ('GIO_LAUNCHED_DESKTOP_FILE_PID', '41801'), ('TMPDIR', '/tmp'), ('ROS_DISTRO', 'humble'), ('GTK_IM_MODULE', 'ibus'), ('LOGNAME', 'zrh'), ('TEMP', '/tmp'), ('JOURNAL_STREAM', '8:3919'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('XDG_SESSION_CLASS', 'user'), ('npm_config_cache', '/tmp'), ('USERNAME', 'zrh'), ('TERM', 'dumb'), ('GNOME_DESKTOP_SESSION_ID', 'this-is-deprecated'), ('BASH_SILENCE_DEPRECATION_WARNING', '1'), ('FC_FONTATIONS', '1'), ('ROS_LOCALHOST_ONLY', '0'), ('WINDOWPATH', '2'), ('PATH', '/home/zrh/.local/bin:/home/zrh/bin:/opt/ros/humble/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin'), ('SESSION_MANAGER', 'local/zrh-ThinkBook-14-G7-IAH:@/tmp/.ICE-unix/2274,unix/zrh-ThinkBook-14-G7-IAH:/tmp/.ICE-unix/2274'), ('INVOCATION_ID', 'c9ac05907e524d77812acff1edf23ba1'), ('PAPERSIZE', 'a4'), ('XDG_MENU_PREFIX', 'gnome-'), ('LC_ADDRESS', 'zh_CN.UTF-8'), ('XDG_RUNTIME_DIR', '/run/user/1000'), ('GDK_BACKEND', 'x11'), ('DISPLAY', ':1'), ('LANG', 'zh_CN.UTF-8'), ('XDG_CURRENT_DESKTOP', 'ubuntu:GNOME'), ('LC_TELEPHONE', 'zh_CN.UTF-8'), ('XMODIFIERS', '@im=ibus'), ('XDG_SESSION_DESKTOP', 'ubuntu'), ('XAUTHORITY', '/run/user/1000/gdm/Xauthority'), ('TMP', '/tmp'), ('SSH_AGENT_LAUNCHER', 'gnome-keyring'), ('SSH_AUTH_SOCK', '/run/user/1000/keyring/ssh'), ('AMENT_PREFIX_PATH', '/home/zrh/ros2_ws/install/my_car:/opt/ros/humble'), ('SHELL', '/bin/bash'), ('LC_NAME', 'zh_CN.UTF-8'), ('GOCACHE', '/tmp'), ('REASONIX_DESKTOP_SERVICE', '/usr/bin/reasonix-desktop'), ('QT_ACCESSIBILITY', '1'), ('NO_AT_BRIDGE', '1'), ('GDMSESSION', 'ubuntu'), ('LC_MEASUREMENT', 'zh_CN.UTF-8'), ('GPG_AGENT_INFO', '/run/user/1000/gnupg/S.gpg-agent:0:1'), ('GJS_DEBUG_OUTPUT', 'stderr'), ('LC_IDENTIFICATION', 'zh_CN.UTF-8'), ('GIT_PAGER', 'cat'), ('QT_IM_MODULE', 'ibus'), ('NPM_CONFIG_CACHE', '/tmp'), ('PWD', '/home/zrh/ros2_ws/build/my_car'), ('XDG_CONFIG_DIRS', '/etc/xdg/xdg-ubuntu:/etc/xdg'), ('XDG_DATA_DIRS', '/usr/share/ubuntu:/usr/share/gnome:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop'), ('PYTHONPATH', '/home/zrh/ros2_ws/install/my_car/lib/python3.10/site-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages'), ('LC_NUMERIC', 'zh_CN.UTF-8'), ('LC_PAPER', 'zh_CN.UTF-8'), ('COLCON', '1'), ('PYTHONDONTWRITEBYTECODE', '1'), ('PYTEST_ADDOPTS', '--tb=short --junit-xml=/home/zrh/ros2_ws/build/my_car/pytest.xml --junit-prefix=my_car -o cache_dir=/home/zrh/ros2_ws/build/my_car/.pytest_cache')]), 'shell': False}
+[0.200955] (-) TimerEvent: {}
+[0.301236] (-) TimerEvent: {}
+[0.396383] (my_car) StdoutLine: {'line': b'============================= test session starts ==============================\n'}
+[0.396552] (my_car) StdoutLine: {'line': b'platform linux -- Python 3.10.12, pytest-6.2.5, py-1.10.0, pluggy-0.13.0\n'}
+[0.396589] (my_car) StdoutLine: {'line': b'cachedir: /home/zrh/ros2_ws/build/my_car/.pytest_cache\n'}
+[0.396625] (my_car) StdoutLine: {'line': b'rootdir: /home/zrh/ros2_ws/src/my_car\n'}
+[0.396655] (my_car) StdoutLine: {'line': b'plugins: launch-testing-ros-0.19.14, ament-pep257-0.12.15, ament-lint-0.12.15, launch-testing-1.0.15, ament-xmllint-0.12.15, ament-copyright-0.12.15, ament-flake8-0.12.15, cov-3.0.0, colcon-core-0.21.3\n'}
+[0.396687] (my_car) StdoutLine: {'line': b'collected 3 items\n'}
+[0.396716] (my_car) StdoutLine: {'line': b'\n'}
+[0.399350] (my_car) StdoutLine: {'line': b'test/test_copyright.py s                                                 [ 33%]\n'}
+[0.401348] (-) TimerEvent: {}
+[0.499038] (my_car) StdoutLine: {'line': b'test/test_flake8.py F                                                    [ 66%]\n'}
+[0.501447] (-) TimerEvent: {}
+[0.523831] (my_car) StderrLine: {'line': b'=============================== warnings summary ===============================\n'}
+[0.524085] (my_car) StderrLine: {'line': b'test/test_flake8.py::test_flake8\n'}
+[0.524127] (my_car) StderrLine: {'line': b'test/test_flake8.py::test_flake8\n'}
+[0.524167] (my_car) StderrLine: {'line': b'  Warning: SelectableGroups dict interface is deprecated. Use select.\n'}
+[0.524200] (my_car) StderrLine: {'line': b'\n'}
+[0.524231] (my_car) StderrLine: {'line': b'-- Docs: https://docs.pytest.org/en/stable/warnings.html\n'}
+[0.524262] (my_car) StdoutLine: {'line': b'test/test_pep257.py F                                                    [100%]\n'}
+[0.524294] (my_car) StdoutLine: {'line': b'\n'}
+[0.524323] (my_car) StdoutLine: {'line': b'=================================== FAILURES ===================================\n'}
+[0.524352] (my_car) StdoutLine: {'line': b'_________________________________ test_flake8 __________________________________\n'}
+[0.524380] (my_car) StdoutLine: {'line': b'test/test_flake8.py:23: in test_flake8\n'}
+[0.524409] (my_car) StdoutLine: {'line': b'    assert rc == 0, \\\n'}
+[0.524438] (my_car) StdoutLine: {'line': b'E   AssertionError: Found 35 code style errors / warnings:\n'}
+[0.524467] (my_car) StdoutLine: {'line': b'E     ./setup.py:43:1: W391 blank line at end of file\n'}
+[0.524496] (my_car) StdoutLine: {'line': b'E     ./my_car/teleop_node.py:29:1: E302 expected 2 blank lines, found 1\n'}
+[0.524526] (my_car) StdoutLine: {'line': b'E     ./my_car/teleop_node.py:41:31: E261 at least two spaces before inline comment\n'}
+[0.524555] (my_car) StdoutLine: {'line': b'E     ./my_car/teleop_node.py:49:1: W293 blank line contains whitespace\n'}
+[0.524583] (my_car) StdoutLine: {'line': b'E     ./my_car/teleop_node.py:59:1: W293 blank line contains whitespace\n'}
+[0.524612] (my_car) StdoutLine: {'line': b'E     ./my_car/teleop_node.py:62:40: E261 at least two spaces before inline comment\n'}
+[0.524891] (my_car) StdoutLine: {'line': b'E     ./my_car/teleop_node.py:64:1: W293 blank line contains whitespace\n'}
+[0.525032] (my_car) StdoutLine: {'line': b'E     ./my_car/teleop_node.py:65:53: E261 at least two spaces before inline comment\n'}
+[0.525120] (my_car) StdoutLine: {'line': b'E     ./my_car/teleop_node.py:68:34: E701 multiple statements on one line (colon)\n'}
+[0.525223] (my_car) StdoutLine: {'line': b'E     ./my_car/teleop_node.py:69:36: E701 multiple statements on one line (colon)\n'}
+[0.525302] (my_car) StdoutLine: {'line': b'E     ./my_car/teleop_node.py:71:42: E701 multiple statements on one line (colon)\n'}
+[0.525375] (my_car) StdoutLine: {'line': b'E     ./my_car/teleop_node.py:72:29: E701 multiple statements on one line (colon)\n'}
+[0.525446] (my_car) StdoutLine: {'line': b'E     ./my_car/teleop_node.py:74:42: E701 multiple statements on one line (colon)\n'}
+[0.525516] (my_car) StdoutLine: {'line': b'E     ./my_car/teleop_node.py:75:29: E701 multiple statements on one line (colon)\n'}
+[0.525585] (my_car) StdoutLine: {'line': b'E     ./my_car/teleop_node.py:76:55: E701 multiple statements on one line (colon)\n'}
+[0.525655] (my_car) StdoutLine: {'line': b'E     ./my_car/teleop_node.py:77:55: E701 multiple statements on one line (colon)\n'}
+[0.525724] (my_car) StdoutLine: {'line': b'E     ./my_car/teleop_node.py:79:29: E261 at least two spaces before inline comment\n'}
+[0.525807] (my_car) StdoutLine: {'line': b'E     ./my_car/teleop_node.py:80:1: W293 blank line contains whitespace\n'}
+[0.526189] (my_car) StdoutLine: {'line': b'E     ./my_car/teleop_node.py:94:1: W293 blank line contains whitespace\n'}
+[0.526285] (my_car) StdoutLine: {'line': b'E     ./my_car/teleop_node.py:99:1: E302 expected 2 blank lines, found 1\n'}
+[0.526373] (my_car) StdoutLine: {'line': b'E     ./my_car/teleop_node.py:113:1: E305 expected 2 blank lines after class or function definition, found 1\n'}
+[0.526461] (my_car) StdoutLine: {'line': b'E     ./my_car/teleop_node.py:114:11: W292 no newline at end of file\n'}
+[0.526549] (my_car) StdoutLine: {'line': b'E     ./my_car/car_node.py:7:1: E302 expected 2 blank lines, found 1\n'}
+[0.526629] (my_car) StdoutLine: {'line': b'E     ./my_car/car_node.py:30:32: E701 multiple statements on one line (colon)\n'}
+[0.526712] (my_car) StdoutLine: {'line': b'E     ./my_car/car_node.py:31:32: E701 multiple statements on one line (colon)\n'}
+[0.526790] (my_car) StdoutLine: {'line': b'E     ./my_car/car_node.py:32:32: E701 multiple statements on one line (colon)\n'}
+[0.526878] (my_car) StdoutLine: {'line': b'E     ./my_car/car_node.py:35:26: E221 multiple spaces before operator\n'}
+[0.526955] (my_car) StdoutLine: {'line': b'E     ./my_car/car_node.py:36:26: E221 multiple spaces before operator\n'}
+[0.527022] (my_car) StdoutLine: {'line': b'E     ./my_car/car_node.py:38:1: W293 blank line contains whitespace\n'}
+[0.527090] (my_car) StdoutLine: {'line': b'E     ./my_car/car_node.py:44:1: W293 blank line contains whitespace\n'}
+[0.527165] (my_car) StdoutLine: {'line': b'E     ./my_car/car_node.py:50:1: W293 blank line contains whitespace\n'}
+[0.527238] (my_car) StdoutLine: {'line': b'E     ./my_car/car_node.py:53:1: E302 expected 2 blank lines, found 1\n'}
+[0.527304] (my_car) StdoutLine: {'line': b'E     ./my_car/car_node.py:61:34: E261 at least two spaces before inline comment\n'}
+[0.527688] (my_car) StdoutLine: {'line': b'E     ./my_car/car_node.py:65:1: E305 expected 2 blank lines after class or function definition, found 1\n'}
+[0.527786] (my_car) StdoutLine: {'line': b'E     ./my_car/car_node.py:66:11: W292 no newline at end of file\n'}
+[0.527866] (my_car) StdoutLine: {'line': b'E   assert 1 == 0\n'}
+[0.527943] (my_car) StdoutLine: {'line': b'----------------------------- Captured stdout call -----------------------------\n'}
+[0.528022] (my_car) StdoutLine: {'line': b'\n'}
+[0.528098] (my_car) StdoutLine: {'line': b'./setup.py:43:1: W391 blank line at end of file\n'}
+[0.528191] (my_car) StdoutLine: {'line': b'\n'}
+[0.528267] (my_car) StdoutLine: {'line': b'^\n'}
+[0.528333] (my_car) StdoutLine: {'line': b'\n'}
+[0.528396] (my_car) StdoutLine: {'line': b'./my_car/teleop_node.py:29:1: E302 expected 2 blank lines, found 1\n'}
+[0.528460] (my_car) StdoutLine: {'line': b'class Teleop(Node):\n'}
+[0.528525] (my_car) StdoutLine: {'line': b'^\n'}
+[0.528590] (my_car) StdoutLine: {'line': b'\n'}
+[0.528657] (my_car) StdoutLine: {'line': b'./my_car/teleop_node.py:41:31: E261 at least two spaces before inline comment\n'}
+[0.528723] (my_car) StdoutLine: {'line': b'        self.key_timeout = 0.1 # 100\xe6\xaf\xab\xe7\xa7\x92\xe6\xb2\xa1\xe6\x8c\x89\xe9\x94\xae\xef\xbc\x8c\xe5\xb0\xb1\xe8\xae\xa4\xe4\xb8\xba\xe6\x9d\xbe\xe6\x89\x8b\xe4\xba\x86\n'}
+[0.528791] (my_car) StdoutLine: {'line': b'                              ^\n'}
+[0.528873] (my_car) StdoutLine: {'line': b'\n'}
+[0.528955] (my_car) StdoutLine: {'line': b'./my_car/teleop_node.py:49:1: W293 blank line contains whitespace\n'}
+[0.529097] (my_car) StdoutLine: {'line': b'        \n'}
+[0.529204] (my_car) StdoutLine: {'line': b'^\n'}
+[0.529291] (my_car) StdoutLine: {'line': b'\n'}
+[0.529406] (my_car) StdoutLine: {'line': b'./my_car/teleop_node.py:59:1: W293 blank line contains whitespace\n'}
+[0.529557] (my_car) StdoutLine: {'line': b'                    \n'}
+[0.529706] (my_car) StdoutLine: {'line': b'^\n'}
+[0.530139] (my_car) StdoutLine: {'line': b'\n'}
+[0.530334] (my_car) StdoutLine: {'line': b'./my_car/teleop_node.py:62:40: E261 at least two spaces before inline comment\n'}
+[0.530487] (my_car) StdoutLine: {'line': b"                    elif key == '\\x03': # Ctrl+C\n"}
+[0.530574] (my_car) StdoutLine: {'line': b'                                       ^\n'}
+[0.530667] (my_car) StdoutLine: {'line': b'\n'}
+[0.530772] (my_car) StdoutLine: {'line': b'./my_car/teleop_node.py:64:1: W293 blank line contains whitespace\n'}
+[0.530830] (my_car) StdoutLine: {'line': b'                    \n'}
+[0.530886] (my_car) StdoutLine: {'line': b'^\n'}
+[0.531227] (my_car) StdoutLine: {'line': b'\n'}
+[0.531451] (my_car) StdoutLine: {'line': b'./my_car/teleop_node.py:65:53: E261 at least two spaces before inline comment\n'}
+[0.531525] (my_car) StdoutLine: {'line': b'                    self.last_key_time = time.time() # \xe5\x88\xb7\xe6\x96\xb0\xe6\x8c\x89\xe9\x94\xae\xe6\x97\xb6\xe9\x97\xb4\n'}
+[0.531597] (my_car) StdoutLine: {'line': b'                                                    ^\n'}
+[0.531653] (my_car) StdoutLine: {'line': b'\n'}
+[0.531710] (my_car) StdoutLine: {'line': b'./my_car/teleop_node.py:68:34: E701 multiple statements on one line (colon)\n'}
+[0.531767] (my_car) StdoutLine: {'line': b"                    if key == 'w': x = self.speed\n"}
+[0.531824] (my_car) StdoutLine: {'line': b'                                 ^\n'}
+[0.531878] (my_car) StdoutLine: {'line': b'\n'}
+[0.531933] (my_car) StdoutLine: {'line': b'./my_car/teleop_node.py:69:36: E701 multiple statements on one line (colon)\n'}
+[0.531987] (my_car) StdoutLine: {'line': b"                    elif key == 's': x = -self.speed\n"}
+[0.532041] (my_car) StdoutLine: {'line': b'                                   ^\n'}
+[0.532093] (my_car) StdoutLine: {'line': b'\n'}
+[0.532153] (my_car) StdoutLine: {'line': b'./my_car/teleop_node.py:71:42: E701 multiple statements on one line (colon)\n'}
+[0.532278] (my_car) StdoutLine: {'line': b'                        if self.holonomic: y = self.speed\n'}
+[0.532364] (my_car) StdoutLine: {'line': b'                                         ^\n'}
+[0.532461] (my_car) StdoutLine: {'line': b'\n'}
+[0.532557] (my_car) StdoutLine: {'line': b'./my_car/teleop_node.py:72:29: E701 multiple statements on one line (colon)\n'}
+[0.532644] (my_car) StdoutLine: {'line': b'                        else: yaw = self.turn\n'}
+[0.532700] (my_car) StdoutLine: {'line': b'                            ^\n'}
+[0.532754] (my_car) StdoutLine: {'line': b'\n'}
+[0.532808] (my_car) StdoutLine: {'line': b'./my_car/teleop_node.py:74:42: E701 multiple statements on one line (colon)\n'}
+[0.532861] (my_car) StdoutLine: {'line': b'                        if self.holonomic: y = -self.speed\n'}
+[0.532912] (my_car) StdoutLine: {'line': b'                                         ^\n'}
+[0.532969] (my_car) StdoutLine: {'line': b'\n'}
+[0.533013] (my_car) StdoutLine: {'line': b'./my_car/teleop_node.py:75:29: E701 multiple statements on one line (colon)\n'}
+[0.533056] (my_car) StdoutLine: {'line': b'                        else: yaw = -self.turn\n'}
+[0.533100] (my_car) StdoutLine: {'line': b'                            ^\n'}
+[0.533147] (my_car) StdoutLine: {'line': b'\n'}
+[0.533193] (my_car) StdoutLine: {'line': b'./my_car/teleop_node.py:76:55: E701 multiple statements on one line (colon)\n'}
+[0.533237] (my_car) StdoutLine: {'line': b"                    elif key == 'q' and self.holonomic: yaw = self.turn\n"}
+[0.533285] (my_car) StdoutLine: {'line': b'                                                      ^\n'}
+[0.533330] (my_car) StdoutLine: {'line': b'\n'}
+[0.533373] (my_car) StdoutLine: {'line': b'./my_car/teleop_node.py:77:55: E701 multiple statements on one line (colon)\n'}
+[0.533418] (my_car) StdoutLine: {'line': b"                    elif key == 'e' and self.holonomic: yaw = -self.turn\n"}
+[0.533462] (my_car) StdoutLine: {'line': b'                                                      ^\n'}
+[0.533508] (my_car) StdoutLine: {'line': b'\n'}
+[0.533552] (my_car) StdoutLine: {'line': b'./my_car/teleop_node.py:79:29: E261 at least two spaces before inline comment\n'}
+[0.533606] (my_car) StdoutLine: {'line': b'                        pass # \xe7\xa9\xba\xe6\xa0\xbc\xe5\xb0\xb1\xe6\x98\xaf\xe5\xbc\xba\xe5\x88\xb6\xe5\x8f\x91 0 \xe9\x80\x9f\xe5\xba\xa6\n'}
+[0.533652] (my_car) StdoutLine: {'line': b'                            ^\n'}
+[0.533697] (my_car) StdoutLine: {'line': b'\n'}
+[0.533740] (my_car) StdoutLine: {'line': b'./my_car/teleop_node.py:80:1: W293 blank line contains whitespace\n'}
+[0.533786] (my_car) StdoutLine: {'line': b'                \n'}
+[0.533829] (my_car) StdoutLine: {'line': b'^\n'}
+[0.533873] (my_car) StdoutLine: {'line': b'\n'}
+[0.533915] (my_car) StdoutLine: {'line': b'./my_car/teleop_node.py:94:1: W293 blank line contains whitespace\n'}
+[0.533958] (my_car) StdoutLine: {'line': b'                \n'}
+[0.534003] (my_car) StdoutLine: {'line': b'^\n'}
+[0.534048] (my_car) StdoutLine: {'line': b'\n'}
+[0.534092] (my_car) StdoutLine: {'line': b'./my_car/teleop_node.py:99:1: E302 expected 2 blank lines, found 1\n'}
+[0.534140] (my_car) StdoutLine: {'line': b'def main():\n'}
+[0.534202] (my_car) StdoutLine: {'line': b'^\n'}
+[0.534272] (my_car) StdoutLine: {'line': b'\n'}
+[0.534394] (my_car) StdoutLine: {'line': b'./my_car/teleop_node.py:113:1: E305 expected 2 blank lines after class or function definition, found 1\n'}
+[0.534439] (my_car) StdoutLine: {'line': b"if __name__ == '__main__':\n"}
+[0.534478] (my_car) StdoutLine: {'line': b'^\n'}
+[0.534514] (my_car) StdoutLine: {'line': b'\n'}
+[0.534551] (my_car) StdoutLine: {'line': b'./my_car/teleop_node.py:114:11: W292 no newline at end of file\n'}
+[0.534587] (my_car) StdoutLine: {'line': b'    main()          ^\n'}
+[0.534625] (my_car) StdoutLine: {'line': b'\n'}
+[0.534663] (my_car) StdoutLine: {'line': b'./my_car/car_node.py:7:1: E302 expected 2 blank lines, found 1\n'}
+[0.534700] (my_car) StdoutLine: {'line': b'class CarNode(Node):\n'}
+[0.534738] (my_car) StdoutLine: {'line': b'^\n'}
+[0.534775] (my_car) StdoutLine: {'line': b'\n'}
+[0.534814] (my_car) StdoutLine: {'line': b'./my_car/car_node.py:30:32: E701 multiple statements on one line (colon)\n'}
+[0.534855] (my_car) StdoutLine: {'line': b'        if math.isnan(target_x): target_x = 0.0\n'}
+[0.534895] (my_car) StdoutLine: {'line': b'                               ^\n'}
+[0.534941] (my_car) StdoutLine: {'line': b'\n'}
+[0.534979] (my_car) StdoutLine: {'line': b'./my_car/car_node.py:31:32: E701 multiple statements on one line (colon)\n'}
+[0.535022] (my_car) StdoutLine: {'line': b'        if math.isnan(target_y): target_y = 0.0\n'}
+[0.535060] (my_car) StdoutLine: {'line': b'                               ^\n'}
+[0.535105] (my_car) StdoutLine: {'line': b'\n'}
+[0.535161] (my_car) StdoutLine: {'line': b'./my_car/car_node.py:32:32: E701 multiple statements on one line (colon)\n'}
+[0.535201] (my_car) StdoutLine: {'line': b'        if math.isnan(target_z): target_z = 0.0\n'}
+[0.535239] (my_car) StdoutLine: {'line': b'                               ^\n'}
+[0.535279] (my_car) StdoutLine: {'line': b'\n'}
+[0.535317] (my_car) StdoutLine: {'line': b'./my_car/car_node.py:35:26: E221 multiple spaces before operator\n'}
+[0.535362] (my_car) StdoutLine: {'line': b'        self.cmd.linear.x  = max(-self.MAX_LIN, min(self.MAX_LIN, target_x))\n'}
+[0.535409] (my_car) StdoutLine: {'line': b'                         ^\n'}
+[0.535446] (my_car) StdoutLine: {'line': b'\n'}
+[0.535482] (my_car) StdoutLine: {'line': b'./my_car/car_node.py:36:26: E221 multiple spaces before operator\n'}
+[0.535525] (my_car) StdoutLine: {'line': b'        self.cmd.linear.y  = max(-self.MAX_LIN, min(self.MAX_LIN, target_y))\n'}
+[0.535570] (my_car) StdoutLine: {'line': b'                         ^\n'}
+[0.535614] (my_car) StdoutLine: {'line': b'\n'}
+[0.535658] (my_car) StdoutLine: {'line': b'./my_car/car_node.py:38:1: W293 blank line contains whitespace\n'}
+[0.535709] (my_car) StdoutLine: {'line': b'        \n'}
+[0.535755] (my_car) StdoutLine: {'line': b'^\n'}
+[0.535795] (my_car) StdoutLine: {'line': b'\n'}
+[0.535833] (my_car) StdoutLine: {'line': b'./my_car/car_node.py:44:1: W293 blank line contains whitespace\n'}
+[0.535872] (my_car) StdoutLine: {'line': b'        \n'}
+[0.535914] (my_car) StdoutLine: {'line': b'^\n'}
+[0.535953] (my_car) StdoutLine: {'line': b'\n'}
+[0.535990] (my_car) StdoutLine: {'line': b'./my_car/car_node.py:50:1: W293 blank line contains whitespace\n'}
+[0.536035] (my_car) StdoutLine: {'line': b'            \n'}
+[0.536075] (my_car) StdoutLine: {'line': b'^\n'}
+[0.538144] (my_car) StdoutLine: {'line': b'\n'}
+[0.538263] (my_car) StdoutLine: {'line': b'./my_car/car_node.py:53:1: E302 expected 2 blank lines, found 1\n'}
+[0.538303] (my_car) StdoutLine: {'line': b'def main(args=None):\n'}
+[0.538338] (my_car) StdoutLine: {'line': b'^\n'}
+[0.538372] (my_car) StdoutLine: {'line': b'\n'}
+[0.538407] (my_car) StdoutLine: {'line': b'./my_car/car_node.py:61:34: E261 at least two spaces before inline comment\n'}
+[0.538442] (my_car) StdoutLine: {'line': b'        node.pub.publish(Twist()) # \xe9\x80\x80\xe5\x87\xba\xe5\x89\x8d\xe5\x8f\x91\xe4\xb8\x80\xe6\xac\xa1\xe5\x81\x9c\xe6\xad\xa2\n'}
+[0.538475] (my_car) StdoutLine: {'line': b'                                 ^\n'}
+[0.538508] (my_car) StdoutLine: {'line': b'\n'}
+[0.538540] (my_car) StdoutLine: {'line': b'./my_car/car_node.py:65:1: E305 expected 2 blank lines after class or function definition, found 1\n'}
+[0.538582] (my_car) StdoutLine: {'line': b"if __name__ == '__main__':\n"}
+[0.538614] (my_car) StdoutLine: {'line': b'^\n'}
+[0.538646] (my_car) StdoutLine: {'line': b'\n'}
+[0.538677] (my_car) StdoutLine: {'line': b'./my_car/car_node.py:66:11: W292 no newline at end of file\n'}
+[0.538711] (my_car) StdoutLine: {'line': b'    main()          ^\n'}
+[0.538744] (my_car) StdoutLine: {'line': b'\n'}
+[0.538777] (my_car) StdoutLine: {'line': b'2     E221 multiple spaces before operator\n'}
+[0.538809] (my_car) StdoutLine: {'line': b'5     E261 at least two spaces before inline comment\n'}
+[0.538842] (my_car) StdoutLine: {'line': b'4     E302 expected 2 blank lines, found 1\n'}
+[0.538877] (my_car) StdoutLine: {'line': b'2     E305 expected 2 blank lines after class or function definition, found 1\n'}
+[0.538909] (my_car) StdoutLine: {'line': b'11    E701 multiple statements on one line (colon)\n'}
+[0.538942] (my_car) StdoutLine: {'line': b'2     W292 no newline at end of file\n'}
+[0.538975] (my_car) StdoutLine: {'line': b'8     W293 blank line contains whitespace\n'}
+[0.539007] (my_car) StdoutLine: {'line': b'1     W391 blank line at end of file\n'}
+[0.539040] (my_car) StdoutLine: {'line': b'\n'}
+[0.539073] (my_car) StdoutLine: {'line': b'11 files checked\n'}
+[0.539107] (my_car) StdoutLine: {'line': b'35 errors\n'}
+[0.539144] (my_car) StdoutLine: {'line': b'\n'}
+[0.539181] (my_car) StdoutLine: {'line': b"'E'-type errors: 24\n"}
+[0.539215] (my_car) StdoutLine: {'line': b"'W'-type errors: 11\n"}
+[0.539248] (my_car) StdoutLine: {'line': b'\n'}
+[0.539281] (my_car) StdoutLine: {'line': b'Checked files:\n'}
+[0.539315] (my_car) StdoutLine: {'line': b'\n'}
+[0.539348] (my_car) StdoutLine: {'line': b'* ./setup.py\n'}
+[0.539382] (my_car) StdoutLine: {'line': b'* ./launch/navigation2.launch.py\n'}
+[0.539416] (my_car) StdoutLine: {'line': b'* ./launch/car_world.launch.py\n'}
+[0.539449] (my_car) StdoutLine: {'line': b'* ./launch/slam_mapping.launch.py\n'}
+[0.539482] (my_car) StdoutLine: {'line': b'* ./test/test_flake8.py\n'}
+[0.539516] (my_car) StdoutLine: {'line': b'* ./test/test_copyright.py\n'}
+[0.539550] (my_car) StdoutLine: {'line': b'* ./test/test_pep257.py\n'}
+[0.539585] (my_car) StdoutLine: {'line': b'* ./my_car/__init__.py\n'}
+[0.539619] (my_car) StdoutLine: {'line': b'* ./my_car/teleop_node.py\n'}
+[0.539653] (my_car) StdoutLine: {'line': b'* ./my_car/launch_env.py\n'}
+[0.539686] (my_car) StdoutLine: {'line': b'* ./my_car/car_node.py\n'}
+[0.539719] (my_car) StdoutLine: {'line': b'----------------------------- Captured stderr call -----------------------------\n'}
+[0.539753] (my_car) StdoutLine: {'line': b'option --max-complexity: please update from optparse string `type=` to argparse callable `type=` -- this will be an error in the future\n'}
+[0.539790] (my_car) StdoutLine: {'line': b'_________________________________ test_pep257 __________________________________\n'}
+[0.539829] (my_car) StdoutLine: {'line': b'test/test_pep257.py:23: in test_pep257\n'}
+[0.539864] (my_car) StdoutLine: {'line': b"    assert rc == 0, 'Found code style errors / warnings'\n"}
+[0.539901] (my_car) StdoutLine: {'line': b'E   AssertionError: Found code style errors / warnings\n'}
+[0.539939] (my_car) StdoutLine: {'line': b'E   assert 1 == 0\n'}
+[0.539973] (my_car) StdoutLine: {'line': b'----------------------------- Captured stdout call -----------------------------\n'}
+[0.540008] (my_car) StdoutLine: {'line': b'checking ./launch/car_world.launch.py\n'}
+[0.540042] (my_car) StdoutLine: {'line': b'./launch/car_world.launch.py:1 at module level: D213: Multi-line docstring summary should start at the second line\n'}
+[0.540078] (my_car) StdoutLine: {'line': b"./launch/car_world.launch.py:1 at module level: D400: First line should end with a period (not '\xe3\x80\x82')\n"}
+[0.540113] (my_car) StdoutLine: {'line': b"./launch/car_world.launch.py:1 at module level: D415: First line should end with a period, question mark, or exclamation point (not '\xe3\x80\x82')\n"}
+[0.540152] (my_car) StdoutLine: {'line': b'checking ./launch/navigation2.launch.py\n'}
+[0.540189] (my_car) StdoutLine: {'line': b'./launch/navigation2.launch.py:1 at module level: D213: Multi-line docstring summary should start at the second line\n'}
+[0.540224] (my_car) StdoutLine: {'line': b"./launch/navigation2.launch.py:1 at module level: D400: First line should end with a period (not '\xe3\x80\x82')\n"}
+[0.540259] (my_car) StdoutLine: {'line': b"./launch/navigation2.launch.py:1 at module level: D415: First line should end with a period, question mark, or exclamation point (not '\xe3\x80\x82')\n"}
+[0.540293] (my_car) StdoutLine: {'line': b'checking ./launch/slam_mapping.launch.py\n'}
+[0.540327] (my_car) StdoutLine: {'line': b'./launch/slam_mapping.launch.py:1 at module level: D213: Multi-line docstring summary should start at the second line\n'}
+[0.540361] (my_car) StdoutLine: {'line': b"./launch/slam_mapping.launch.py:1 at module level: D400: First line should end with a period (not '\xe3\x80\x82')\n"}
+[0.540395] (my_car) StdoutLine: {'line': b"./launch/slam_mapping.launch.py:1 at module level: D415: First line should end with a period, question mark, or exclamation point (not '\xe3\x80\x82')\n"}
+[0.540430] (my_car) StdoutLine: {'line': b'checking ./my_car/__init__.py\n'}
+[0.540465] (my_car) StdoutLine: {'line': b'checking ./my_car/car_node.py\n'}
+[0.540499] (my_car) StdoutLine: {'line': b'checking ./my_car/launch_env.py\n'}
+[0.540534] (my_car) StdoutLine: {'line': b"./my_car/launch_env.py:1 at module level: D400: First line should end with a period (not '\xe3\x80\x82')\n"}
+[0.540568] (my_car) StdoutLine: {'line': b"./my_car/launch_env.py:1 at module level: D415: First line should end with a period, question mark, or exclamation point (not '\xe3\x80\x82')\n"}
+[0.540603] (my_car) StdoutLine: {'line': b'./my_car/launch_env.py:15 in public function `mesa_environment`: D213: Multi-line docstring summary should start at the second line\n'}
+[0.540638] (my_car) StdoutLine: {'line': b"./my_car/launch_env.py:15 in public function `mesa_environment`: D400: First line should end with a period (not '\xe3\x80\x82')\n"}
+[0.540672] (my_car) StdoutLine: {'line': b"./my_car/launch_env.py:15 in public function `mesa_environment`: D415: First line should end with a period, question mark, or exclamation point (not '\xe3\x80\x82')\n"}
+[0.540707] (my_car) StdoutLine: {'line': b'checking ./my_car/teleop_node.py\n'}
+[0.540742] (my_car) StdoutLine: {'line': b'checking ./setup.py\n'}
+[0.540777] (my_car) StdoutLine: {'line': b'checking ./test/test_copyright.py\n'}
+[0.540811] (my_car) StdoutLine: {'line': b'checking ./test/test_flake8.py\n'}
+[0.540845] (my_car) StdoutLine: {'line': b'checking ./test/test_pep257.py\n'}
+[0.540879] (my_car) StdoutLine: {'line': b'checking test/test_copyright.py\n'}
+[0.540912] (my_car) StdoutLine: {'line': b'checking test/test_flake8.py\n'}
+[0.540945] (my_car) StdoutLine: {'line': b'checking test/test_pep257.py\n'}
+[0.540984] (my_car) StdoutLine: {'line': b'14 errors\n'}
+[0.541018] (my_car) StdoutLine: {'line': b'-------- generated xml file: /home/zrh/ros2_ws/build/my_car/pytest.xml ---------\n'}
+[0.541052] (my_car) StdoutLine: {'line': b'=========================== short test summary info ============================\n'}
+[0.541089] (my_car) StdoutLine: {'line': b'FAILED test/test_flake8.py::test_flake8 - AssertionError: Found 35 code style...\n'}
+[0.541123] (my_car) StdoutLine: {'line': b'FAILED test/test_pep257.py::test_pep257 - AssertionError: Found code style er...\n'}
+[0.544249] (my_car) StdoutLine: {'line': b'=================== 2 failed, 1 skipped, 2 warnings in 0.20s ===================\n'}
+[0.584404] (my_car) CommandEnded: {'returncode': 1}
+[0.584819] (my_car) TestFailure: {'identifier': 'my_car'}
+[0.584838] (my_car) JobEnded: {'identifier': 'my_car', 'rc': 0}
+[0.585093] (-) EventReactorShutdown: {}

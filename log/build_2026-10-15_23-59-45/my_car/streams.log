@@ -1,0 +1,18 @@
+[0.457s] Invoking command in '/home/zrh/ros2_ws/build/my_car': PYTHONPATH=/home/zrh/ros2_ws/build/my_car/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/zrh/ros2_ws/install/my_car/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/zrh/ros2_ws/build/my_car/build --no-deps symlink_data
+[0.581s] running develop
+[0.645s] running egg_info
+[0.645s] writing my_car.egg-info/PKG-INFO
+[0.645s] writing dependency_links to my_car.egg-info/dependency_links.txt
+[0.645s] writing entry points to my_car.egg-info/entry_points.txt
+[0.645s] writing requirements to my_car.egg-info/requires.txt
+[0.645s] writing top-level names to my_car.egg-info/top_level.txt
+[0.646s] reading manifest file 'my_car.egg-info/SOURCES.txt'
+[0.647s] writing manifest file 'my_car.egg-info/SOURCES.txt'
+[0.647s] running build_ext
+[0.648s] Creating /home/zrh/ros2_ws/install/my_car/lib/python3.10/site-packages/my-car.egg-link (link to .)
+[0.648s] Installing car_node script to /home/zrh/ros2_ws/install/my_car/lib/my_car
+[0.648s] Installing teleop_node script to /home/zrh/ros2_ws/install/my_car/lib/my_car
+[0.648s] 
+[0.648s] Installed /home/zrh/ros2_ws/build/my_car
+[0.648s] running symlink_data
+[0.664s] Invoked command in '/home/zrh/ros2_ws/build/my_car' returned '0': PYTHONPATH=/home/zrh/ros2_ws/build/my_car/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/zrh/ros2_ws/install/my_car/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/zrh/ros2_ws/build/my_car/build --no-deps symlink_data

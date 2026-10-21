@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="2" skipped="1" tests="3" time="0.203" timestamp="2026-10-21T18:41:08.869788" hostname="zrh-ThinkBook-14-G7-IAH"><testcase classname="my_car.test.test_copyright" name="test_copyright" time="0.000"><skipped type="pytest.skip" message="No copyright header has been placed in the generated source file.">/home/zrh/ros2_ws/src/my_car/test/test_copyright.py:20: No copyright header has been placed in the generated source file.</skipped></testcase><testcase classname="my_car.test.test_flake8" name="test_flake8" time="0.083"><failure message="AssertionError: Found 35 code style errors / warnings:&#10;  ./setup.py:43:1: W391 blank line at end of file&#10;  ./my_car/teleop_node.py:29:1: E302 expected 2 blank lines, found 1&#10;  ./my_car/teleop_node.py:41:31: E261 at least two spaces before inline comment&#10;  ./my_car/teleop_node.py:49:1: W293 blank line contains whitespace&#10;  ./my_car/teleop_node.py:59:1: W293 blank line contains whitespace&#10;  ./my_car/teleop_node.py:62:40: E261 at least two spaces before inline comment&#10;  ./my_car/teleop_node.py:64:1: W293 blank line contains whitespace&#10;  ./my_car/teleop_node.py:65:53: E261 at least two spaces before inline comment&#10;  ./my_car/teleop_node.py:68:34: E701 multiple statements on one line (colon)&#10;  ./my_car/teleop_node.py:69:36: E701 multiple statements on one line (colon)&#10;  ./my_car/teleop_node.py:71:42: E701 multiple statements on one line (colon)&#10;  ./my_car/teleop_node.py:72:29: E701 multiple statements on one line (colon)&#10;  ./my_car/teleop_node.py:74:42: E701 multiple statements on one line (colon)&#10;  ./my_car/teleop_node.py:75:29: E701 multiple statements on one line (colon)&#10;  ./my_car/teleop_node.py:76:55: E701 multiple statements on one line (colon)&#10;  ./my_car/teleop_node.py:77:55: E701 multiple statements on one line (colon)&#10;  ./my_car/teleop_node.py:79:29: E261 at least two spaces before inline comment&#10;  ./my_car/teleop_node.py:80:1: W293 blank line contains whitespace&#10;  ./my_car/teleop_node.py:94:1: W293 blank line contains whitespace&#10;  ./my_car/teleop_node.py:99:1: E302 expected 2 blank lines, found 1&#10;  ./my_car/teleop_node.py:113:1: E305 expected 2 blank lines after class or function definition, found 1&#10;  ./my_car/teleop_node.py:114:11: W292 no newline at end of file&#10;  ./my_car/car_node.py:7:1: E302 expected 2 blank lines, found 1&#10;  ./my_car/car_node.py:30:32: E701 multiple statements on one line (colon)&#10;  ./my_car/car_node.py:31:32: E701 multiple statements on one line (colon)&#10;  ./my_car/car_node.py:32:32: E701 multiple statements on one line (colon)&#10;  ./my_car/car_node.py:35:26: E221 multiple spaces before operator&#10;  ./my_car/car_node.py:36:26: E221 multiple spaces before operator&#10;  ./my_car/car_node.py:38:1: W293 blank line contains whitespace&#10;  ./my_car/car_node.py:44:1: W293 blank line contains whitespace&#10;  ./my_car/car_node.py:50:1: W293 blank line contains whitespace&#10;  ./my_car/car_node.py:53:1: E302 expected 2 blank lines, found 1&#10;  ./my_car/car_node.py:61:34: E261 at least two spaces before inline comment&#10;  ./my_car/car_node.py:65:1: E305 expected 2 blank lines after class or function definition, found 1&#10;  ./my_car/car_node.py:66:11: W292 no newline at end of file&#10;assert 1 == 0">test/test_flake8.py:23: in test_flake8
+    assert rc == 0, \
+E   AssertionError: Found 35 code style errors / warnings:
+E     ./setup.py:43:1: W391 blank line at end of file
+E     ./my_car/teleop_node.py:29:1: E302 expected 2 blank lines, found 1
+E     ./my_car/teleop_node.py:41:31: E261 at least two spaces before inline comment
+E     ./my_car/teleop_node.py:49:1: W293 blank line contains whitespace
+E     ./my_car/teleop_node.py:59:1: W293 blank line contains whitespace
+E     ./my_car/teleop_node.py:62:40: E261 at least two spaces before inline comment
+E     ./my_car/teleop_node.py:64:1: W293 blank line contains whitespace
+E     ./my_car/teleop_node.py:65:53: E261 at least two spaces before inline comment
+E     ./my_car/teleop_node.py:68:34: E701 multiple statements on one line (colon)
+E     ./my_car/teleop_node.py:69:36: E701 multiple statements on one line (colon)
+E     ./my_car/teleop_node.py:71:42: E701 multiple statements on one line (colon)
+E     ./my_car/teleop_node.py:72:29: E701 multiple statements on one line (colon)
+E     ./my_car/teleop_node.py:74:42: E701 multiple statements on one line (colon)
+E     ./my_car/teleop_node.py:75:29: E701 multiple statements on one line (colon)
+E     ./my_car/teleop_node.py:76:55: E701 multiple statements on one line (colon)
+E     ./my_car/teleop_node.py:77:55: E701 multiple statements on one line (colon)
+E     ./my_car/teleop_node.py:79:29: E261 at least two spaces before inline comment
+E     ./my_car/teleop_node.py:80:1: W293 blank line contains whitespace
+E     ./my_car/teleop_node.py:94:1: W293 blank line contains whitespace
+E     ./my_car/teleop_node.py:99:1: E302 expected 2 blank lines, found 1
+E     ./my_car/teleop_node.py:113:1: E305 expected 2 blank lines after class or function definition, found 1
+E     ./my_car/teleop_node.py:114:11: W292 no newline at end of file
+E     ./my_car/car_node.py:7:1: E302 expected 2 blank lines, found 1
+E     ./my_car/car_node.py:30:32: E701 multiple statements on one line (colon)
+E     ./my_car/car_node.py:31:32: E701 multiple statements on one line (colon)
+E     ./my_car/car_node.py:32:32: E701 multiple statements on one line (colon)
+E     ./my_car/car_node.py:35:26: E221 multiple spaces before operator
+E     ./my_car/car_node.py:36:26: E221 multiple spaces before operator
+E     ./my_car/car_node.py:38:1: W293 blank line contains whitespace
+E     ./my_car/car_node.py:44:1: W293 blank line contains whitespace
+E     ./my_car/car_node.py:50:1: W293 blank line contains whitespace
+E     ./my_car/car_node.py:53:1: E302 expected 2 blank lines, found 1
+E     ./my_car/car_node.py:61:34: E261 at least two spaces before inline comment
+E     ./my_car/car_node.py:65:1: E305 expected 2 blank lines after class or function definition, found 1
+E     ./my_car/car_node.py:66:11: W292 no newline at end of file
+E   assert 1 == 0</failure></testcase><testcase classname="my_car.test.test_pep257" name="test_pep257" time="0.020"><failure message="AssertionError: Found code style errors / warnings&#10;assert 1 == 0">test/test_pep257.py:23: in test_pep257
+    assert rc == 0, 'Found code style errors / warnings'
+E   AssertionError: Found code style errors / warnings
+E   assert 1 == 0</failure></testcase></testsuite></testsuites>
