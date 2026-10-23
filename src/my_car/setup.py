@@ -39,7 +39,6 @@ setup(
         'console_scripts': [
             'car_node = my_car.car_node:main',
             'teleop_node = my_car.teleop_node:main',
-            'initial_pose_publisher = my_car.initial_pose_publisher:main'
         ],
     },
 )

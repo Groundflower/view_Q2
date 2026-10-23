@@ -69,7 +69,7 @@ def generate_launch_description():
     action_spawn = launch_ros.actions.Node(
         package='ros_gz_sim',
         executable='create',
-        arguments=['-name', 'Mecanum_car', '-topic', '/robot_description','-z', '2'],
+        arguments=['-name', 'Mecanum_car', '-topic', '/robot_description','-z', '0.7'],
         output='screen',
     )
 
