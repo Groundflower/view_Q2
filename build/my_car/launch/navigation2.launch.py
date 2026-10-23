@@ -1,1 +1,0 @@
-/home/zrh/ros2_ws/src/my_car/launch/navigation2.launch.py
