@@ -1,0 +1,270 @@
+<?xml version="1.0"?>
+<robot name="diff_car"
+       xmlns:xacro="http://www.ros.org/wiki/xacro"
+       xmlns:ignition="http://ignitionrobotics.org/schema">
+
+  <!-- ==================== 全局参数 ==================== -->
+  <xacro:property name="chassis_mass" value="1.0"/>
+  <xacro:property name="wheel_mass" value="0.1"/>
+  <xacro:property name="wheel_radius" value="0.05"/>
+  <xacro:property name="wheel_length" value="0.05"/>
+  <xacro:property name="wheel_separation" value="0.23"/>
+  <xacro:property name="wheelbase" value="0.30"/>
+
+  <!-- ============================================================
+       根：base_footprint（地面投影点，无惯量）
+       ============================================================ -->
+  <link name="base_footprint"/>
+
+  <joint name="base_footprint_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="chassis"/>
+    <origin xyz="0 0 0.10" rpy="0 0 0"/>
+  </joint>
+
+  <!-- ============================================================
+       宏：车体（chassis + 车头标记）
+       ============================================================ -->
+  <xacro:macro name="car_chassis">
+    <link name="chassis">
+      <inertial>
+        <mass value="${chassis_mass}"/>
+        <inertia ixx="0.00416667" ixy="0" ixz="0"
+                 iyy="0.01416667" iyz="0"
+                 izz="0.01666667"/>
+      </inertial>
+      <!-- geometry 必须用属性写法（radius= / length= / size=）：
+           Humble 的 urdfdom 和 gazebo 的 URDF->SDF 转换都不认 SDF 风格的子元素写法，
+           写成 <cylinder><radius>..</radius></cylinder> 会被静默丢弃，
+           结果 rviz 和 gazebo 里都看不到车体。 -->
+      <collision>
+        <geometry><box size="0.4 0.2 0.1"/></geometry>
+      </collision>
+      <visual>
+        <geometry><cylinder radius="0.15" length="0.10"/></geometry>
+        <material name="blue"><color rgba="0 0 0.8 1"/></material>
+      </visual>
+    </link>
+
+    <!-- 车头标记 -->
+    <link name="head_marker">
+      <inertial>
+        <mass value="0.001"/>
+        <inertia ixx="0.0000001" ixy="0" ixz="0"
+                 iyy="0.0000001" iyz="0"
+                 izz="0.0000001"/>
+      </inertial>
+      <visual>
+        <geometry><box size="0.06 0.06 0.02"/></geometry>
+        <material name="red"><color rgba="1 0 0 1"/></material>
+      </visual>
+    </link>
+    <joint name="head_marker_joint" type="fixed">
+      <parent link="chassis"/>
+      <child link="head_marker"/>
+      <origin xyz="0.22 0 0.02" rpy="0 0 0"/>
+    </joint>
+  </xacro:macro>
+
+  <!-- ============================================================
+       宏：麦克纳姆轮
+       ============================================================ -->
+  <xacro:macro name="mecanum_wheel" params="name xyz fdir_xyz color">
+    <xacro:property name="x" value="${xyz.split(' ')[0]}"/>
+    <xacro:property name="y" value="${xyz.split(' ')[1]}"/>
+    <xacro:property name="z" value="${xyz.split(' ')[2]}"/>
+    <xacro:property name="fx" value="${fdir_xyz.split(' ')[0]}"/>
+    <xacro:property name="fy" value="${fdir_xyz.split(' ')[1]}"/>
+    <xacro:property name="fz" value="${fdir_xyz.split(' ')[2]}"/>
+
+    <link name="${name}">
+      <inertial>
+        <mass value="${wheel_mass}"/>
+        <inertia ixx="0.00006875" ixy="0" ixz="0"
+                 iyy="0.000125" iyz="0"
+                 izz="0.00006875"/>
+      </inertial>
+      <collision>
+        <origin xyz="0 0 0" rpy="1.57079632679 0 0"/>
+        <geometry><cylinder radius="${wheel_radius}" length="${wheel_length}"/></geometry>
+      </collision>
+      <visual>
+        <origin xyz="0 0 0" rpy="1.57079632679 0 0"/>
+        <geometry><cylinder radius="${wheel_radius}" length="${wheel_length}"/></geometry>
+        <material name="${name}_mat"><color rgba="${color} 1"/></material>
+      </visual>
+    </link>
+    <joint name="${name}_joint" type="revolute">
+      <parent link="chassis"/>
+      <child link="${name}"/>
+      <origin xyz="${x} ${y} ${z}" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
+      <limit effort="10.0" velocity="100.0" lower="-100000" upper="100000"/>
+      <dynamics damping="0.05" friction="0"/>
+    </joint>
+
+    <!-- Gazebo 摩擦（麦克纳姆辊子方向）
+         !! fdir1 必须带 ignition:expressed_in，而且必须指向 base_footprint !!
+         踩过的两个坑：
+           1) 不写 expressed_in 时，gz-sim 6 + dartsim 会忽略 fdir1，四轮各向异性
+              摩擦退化成各向同性 -> 前进能走、横移完全不动；
+           2) 写 expressed_in="chassis" 也不行：URDF->SDF 转换会把 fixed joint 的
+              子 link 合并（lump）进父 link，chassis 这个 frame 在 gazebo 里不存在，
+              日志会报
+                [Wrn] [SDFFeatures.cc] Failed to get body node for [xxx_wheel_collision],
+                      not setting friction direction frame.
+              结果同样是横移失效（还会伴随随机的 yaw 漂移）。
+         base_footprint 是根 link，不会被合并，几何上与 chassis 只差一个 0.10m 的
+         纯平移（base_footprint_joint 的 rpy=0），所以下面 fdir_xyz 仍然按车体
+         坐标系写水平面内的 ±45° 即可。
+         实测：这样改完 /cmd_vel linear.y=0.4 持续 3s，车横向走 1.45m，yaw 漂移 0。 -->
+    <gazebo reference="${name}">
+      <collision>
+        <surface>
+          <friction>
+            <ode>
+              <mu>1.0</mu>
+              <mu2>0.0</mu2>
+              <fdir1 ignition:expressed_in="base_footprint">${fx} ${fy} ${fz}</fdir1>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+    </gazebo>
+  </xacro:macro>
+
+  <!-- ============================================================
+       宏：激光雷达
+       ============================================================ -->
+  <xacro:macro name="lidar" params="xyz">
+    <xacro:property name="x" value="${xyz.split(' ')[0]}"/>
+    <xacro:property name="y" value="${xyz.split(' ')[1]}"/>
+    <xacro:property name="z" value="${xyz.split(' ')[2]}"/>
+
+    <link name="lidar_link">
+      <inertial>
+        <mass value="0.05"/>
+        <inertia ixx="0.00001" ixy="0" ixz="0"
+                 iyy="0.00001" iyz="0"
+                 izz="0.00001"/>
+      </inertial>
+      <collision>
+        <geometry><cylinder radius="0.03" length="0.04"/></geometry>
+      </collision>
+      <visual>
+        <geometry><cylinder radius="0.03" length="0.04"/></geometry>
+        <material name="black"><color rgba="0.2 0.2 0.2 1"/></material>
+      </visual>
+    </link>
+    <joint name="lidar_joint" type="fixed">
+      <parent link="chassis"/>
+      <child link="lidar_link"/>
+      <origin xyz="${x} ${y} ${z}" rpy="0 0 0"/>
+    </joint>
+
+    <gazebo reference="lidar_link">
+      <sensor name="lidar" type="gpu_lidar">
+        <gz_frame_id>lidar_link</gz_frame_id>
+        <pose>0 0 0.02 0 0 0</pose>
+        <topic>/scan</topic>
+        <update_rate>10</update_rate>
+        <always_on>true</always_on>
+        <visualize>true</visualize>
+        <lidar>
+          <scan>
+            <horizontal>
+              <samples>720</samples>
+              <resolution>1</resolution>
+              <min_angle>-3.14159</min_angle>
+              <max_angle>3.14159</max_angle>
+            </horizontal>
+          </scan>
+          <range>
+            <min>0.10</min>
+            <max>10.0</max>
+            <resolution>0.01</resolution>
+          </range>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.01</stddev>
+          </noise>
+        </lidar>
+      </sensor>
+    </gazebo>
+  </xacro:macro>
+
+  <!-- ============================================================
+       宏：万向轮
+       ============================================================ -->
+  <xacro:macro name="caster_wheel" params="xyz">
+    <xacro:property name="x" value="${xyz.split(' ')[0]}"/>
+    <xacro:property name="y" value="${xyz.split(' ')[1]}"/>
+    <xacro:property name="z" value="${xyz.split(' ')[2]}"/>
+
+    <link name="caster_wheel">
+      <inertial>
+        <mass value="0.02"/>
+        <inertia ixx="0.0000032" ixy="0" ixz="0"
+                 iyy="0.0000032" iyz="0"
+                 izz="0.0000032"/>
+      </inertial>
+      <collision>
+        <geometry><sphere radius="0.02"/></geometry>
+      </collision>
+      <visual>
+        <geometry><sphere radius="0.02"/></geometry>
+        <material name="white"><color rgba="1 1 1 1"/></material>
+      </visual>
+    </link>
+    <joint name="caster_joint" type="fixed">
+      <parent link="chassis"/>
+      <child link="caster_wheel"/>
+      <origin xyz="${x} ${y} ${z}" rpy="0 0 0"/>
+    </joint>
+  </xacro:macro>
+
+  <!-- ============================================================
+       宏：Gazebo 插件
+       ============================================================ -->
+  <xacro:macro name="car_plugins">
+    <gazebo>
+      <plugin filename="gz-sim-mecanum-drive-system"
+              name="gz::sim::systems::MecanumDrive">
+        <front_left_joint>front_left_wheel_joint</front_left_joint>
+        <front_right_joint>front_right_wheel_joint</front_right_joint>
+        <back_left_joint>back_left_wheel_joint</back_left_joint>
+        <back_right_joint>back_right_wheel_joint</back_right_joint>
+        <wheel_radius>${wheel_radius}</wheel_radius>
+        <wheel_separation>${wheel_separation}</wheel_separation>
+        <wheelbase>${wheelbase}</wheelbase>
+        <topic>/cmd_vel</topic>
+      </plugin>
+
+      <plugin filename="gz-sim-odometry-publisher-system"
+              name="gz::sim::systems::OdometryPublisher">
+        <odom_frame>odom</odom_frame>
+        <robot_base_frame>base_footprint</robot_base_frame>
+        <odom_topic>odom</odom_topic>
+        <tf_topic>tf</tf_topic>
+        <odom_publish_frequency>50</odom_publish_frequency>
+        <dimension>2</dimension>
+      </plugin>
+    </gazebo>
+  </xacro:macro>
+
+  <!-- ============================================================
+       结尾：调用
+       ============================================================ -->
+  <xacro:car_chassis/>
+  <xacro:caster_wheel xyz="0 0 -0.03"/>
+  <!-- fdir_xyz 在 chassis 坐标系下书写（水平面内 ±45°，对角相同、相邻相反 = X 型布局）。
+       (1,-1,0) 与 (1,1,0) 不必归一化，和 Mecanum_car_world.sdf 保持一致即可。 -->
+  <xacro:mecanum_wheel name="front_left_wheel"  xyz="0.15 0.115 -0.05"  fdir_xyz="1 -1 0" color="0.5 0 0"/>
+  <xacro:mecanum_wheel name="front_right_wheel" xyz="0.15 -0.115 -0.05" fdir_xyz="1 1 0"  color="0 0.4 0"/>
+  <xacro:mecanum_wheel name="back_left_wheel"   xyz="-0.15 0.115 -0.05" fdir_xyz="1 1 0"  color="0.5 0 0"/>
+  <xacro:mecanum_wheel name="back_right_wheel"  xyz="-0.15 -0.115 -0.05" fdir_xyz="1 -1 0" color="0 0.4 0"/>
+  <xacro:lidar xyz="0 0 0.07"/>
+  <xacro:car_plugins/>
+
+</robot>

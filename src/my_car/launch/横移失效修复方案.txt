@@ -1,0 +1,313 @@
+===============================================================================
+question1.launch.py 横向移动失效 —— 诊断结论与修复方案
+生成时间：2026-10-23
+状态：已于 2026-10-23 21:30 修复并实测通过（见下方"更新记录"）
+
+更新记录（2026-10-23 21:30，实测修正）
+-------------------------------------------------------------------------------
+本文件 15:56 版里"把 fdir1 换算成 collision 坐标系 (0.7071 0 ±0.7071)"的判断
+已被实测推翻，正确结论是：
+
+  1) fdir1 必须带 ignition:expressed_in，否则 gz-sim 6 + dartsim 直接忽略它。
+     不带 expressed_in 时，无论数值是 (1,∓1,0)、(0.7071,0,±0.7071) 还是
+     (1,0,±1)，横移位移都是 0。
+  2) expressed_in 不能写 "chassis"：URDF->SDF 转换会把 fixed joint 的子 link
+     合并（lump）进 base_footprint，chassis 这个 frame 在 gazebo 里不存在，
+     日志会报
+       [Wrn] [SDFFeatures.cc:837] Failed to get body node for [xxx_wheel_collision],
+             not setting friction direction frame.
+     结果仍然是横移失效，而且伴随随机 yaw 漂移。
+  3) 正确写法：expressed_in="base_footprint"（根 link，不会被合并；它与 chassis
+     只差 0.10m 纯平移，rpy=0），fdir1 仍按车体坐标系写水平 ±45°：
+       <fdir1 ignition:expressed_in="base_footprint">${fx} ${fy} ${fz}</fdir1>
+       fdir_xyz = 1 -1 0 / 1 1 0 / 1 1 0 / 1 -1 0（FL,FR,BL,BR）
+
+  另外同批修了一个更底层的问题：geometry 必须用属性写法（见第三节新增的 3.0）。
+  URDF 标准里的子元素写法 <cylinder><radius>..</radius></cylinder> 在这台机器上
+  会被 urdfdom 和 sdformat 双双丢弃，导致 gazebo 里根本没有 visual/collision。
+
+  修复后实测（world.sdf + 你的 xacro，/cmd_vel 0.4 / 2s）：
+    前进 x=+0.4 -> 位移 1.05 m；后退 -> 回到原点
+    左横移 y=+0.4 -> 位移 1.03 m；右横移 y=-0.4 -> 位移 1.05 m
+    原地 wz=1.0 -> 正常转动且位置不漂
+    横移全程 yaw 漂移 0，gazebo 日志无 friction frame 告警
+===============================================================================
+
+
+一、结论速览
+-------------------------------------------------------------------------------
+横移不生效不是 teleop_node / car_node / ros_gz_bridge 链路的问题，而是
+question1.launch.py 加载的模型里，麦克纳姆轮"辊子近似"的各向异性摩擦参数
+写错了坐标系：
+
+  fdir1 没有 expressed_in，被解释在"已绕 x 轴旋转 90°"的 collision 局部坐标系，
+  实际指向变成斜向下 45°，横向牵引力为 0。
+
+前进方向仍保留 0.707 的水平分量，所以"前进正常、横移不动"这个现象完全吻合。
+附带两个次因（mu 在 URDF→SDF 转换中丢失、mu2=0.1 偏大）和两个会挡路的问题
+（src 版 xacro 有拼写错误、src 与 install 版本不一致），见第三节。
+
+
+二、实测证据
+-------------------------------------------------------------------------------
+2.1 对照实验（同一个 /cmd_vel 发布器，20Hz）
+    指令 linear.y = 0.5，持续约 3 s：
+
+      模型 / 世界                                         y 位移      x 位移
+      ------------------------------------------------   --------   --------
+      empty.sdf + rebuild_robot.xacro（question1）        0.000 m    0.000 m
+      Mecanum_car_world.sdf（car_world.launch.py）        约 1.0 m   约 0.0 m
+
+    指令 linear.x = 0.4~0.5：两者都能走，速度约 0.43~0.5 m/s。
+    横移失效时轮子仍在转（wheel link 的 orientation 持续变化），说明
+    MecanumDrive 收到了命令、四轮转速分配也是对的，只是力传不到地面上。
+
+2.2 转换后实际生效的摩擦参数（xacro -> URDF -> SDF，只读检查）
+    xacro  install/my_car/share/my_car/sdf/rebuild_robot.xacro
+    ign sdf -p 之后，轮子 collision 变成：
+
+      <collision name='front_left_wheel_collision'>
+        <pose>0 0 0 1.57079632679 0 0</pose>     <-- collision 自身绕 x 转了 90°
+        <geometry><cylinder .../></geometry>
+        <surface><friction><ode>
+          <mu2>0.1</mu2>                          <-- 没有 <mu>，mu 取默认值
+          <fdir1>0.7071 -0.7071 0</fdir1>         <-- 没有 expressed_in
+        </ode></friction></surface>
+      </collision>
+
+    对照能横移的 Mecanum_car_world.sdf（第 246/287/328/368 行）：
+
+      <fdir1 ignition:expressed_in="chassis">1 -1 0</fdir1>
+      <mu>1.0</mu>  <mu2>0.0</mu2>
+
+    两者唯一的实质差别就是：fdir1 落在 chassis 坐标系还是 collision 坐标系。
+
+
+三、根因
+-------------------------------------------------------------------------------
+3.0 底层问题：geometry 写成了子元素形式（2026-10-23 21:30 新增，已修）
+    现象：colcon build 后加载出来的不是自己搭的车 —— rviz 和 gazebo 里都看不到
+    车身/轮子，gazebo 里只剩不可见的惯性块（而且因为没有碰撞体会穿地掉下去）。
+
+    原因：URDF 标准里的子元素写法在这台机器上两个解析器都不认：
+      <cylinder><radius>0.05</radius><length>0.05</length></cylinder>   -> 被丢弃
+      <cylinder radius="0.05" length="0.05"/>                          -> 正常
+    check_urdf 会直接报 "Cylinder shape must have both length and radius attributes"。
+    实测：同一个 link 用子元素写法，转换后 collision=0 / visual=0；
+    改成属性写法后 collision=1 / visual=1。box / sphere 同理。
+
+    附带实测结论：<collision> / <visual> 不要写 name 属性。写了之后 fixed joint
+    合并会把它改名成 xxx_fixed_joint_lump__名字_collision，<gazebo reference> 里的
+    摩擦就匹配不上，mu2/fdir1 会凭空消失。
+
+3.1 主因：fdir1 缺少 expressed_in / 指向了被合并掉的 frame
+    （本节 15:56 原文判断为"坐标系换算错误"，已被实测修正，见开头更新记录；
+     结论是：不是数值问题，而是 expressed_in 缺失或指向不存在的 frame。）
+
+    相关位置（src/my_car/my_car/urdf/rebuild_robot.xacro）：
+      轮子 collision 的 <origin rpy="1.57079632679 0 0">
+      <gazebo reference="${name}"> 里的 <fdir1 ignition:expressed_in="...">
+
+    实测对照（同一 world.sdf、同一 /cmd_vel linear.y=0.4、3 秒）：
+      fdir1 = 0.7071 0 ±0.7071，无 expressed_in        -> y 位移 0.00 m（轮子空转）
+      fdir1 = 0.7071 ∓0.7071 0，无 expressed_in        -> y 位移 0.00 m，yaw 漂 0.53
+      fdir1 = 1 0 ±1，        无 expressed_in          -> y 位移 0.00 m
+      fdir1 = 1 ∓1 0，        无 expressed_in          -> y 位移 0.00 m，yaw 漂 0.97
+      fdir1 = 1 ∓1 0，        expressed_in="chassis"  -> y 位移 0.00 m，yaw 漂 1.18
+                               （日志：Failed to get body node for [xxx_collision]）
+      fdir1 = 1 ∓1 0，        expressed_in="base_footprint" -> y 位移 1.45 m，yaw 0
+      （参照：Mecanum_car_world.sdf 的模型段，index chassis 存在 -> y 位移 1.85 m）
+
+    结论：没有 expressed_in 时 dartsim 不设置摩擦方向，退化成各向同性；
+    expressed_in 指向的 frame 被 fixed-joint lump 吃掉时，设置同样失败。
+    唯一稳定写法是指向根 link base_footprint。
+
+3.2 次因：mu 丢失 + mu2 偏大
+    - <gazebo reference> 里的 <mu>1.2</mu> 在 URDF→SDF 转换中丢失，转换结果
+      只剩 mu2=0.1（见 2.2 输出），mu 走默认值。
+    - mu2 是"垂直于 fdir1 的第二摩擦系数"，横移要求它尽量接近 0；
+      已验证可用的基线是 mu2=0.0，当前是 0.1。
+
+3.3 顺带发现（不是本次横移的原因，但会挡路，建议一起处理）
+    (a) src/my_car/my_car/urdf/rebuild_robot.xacro:225
+          <xacro:mecanum_wheel ... olor="0.5 0 0"/>      <-- 少了个 c
+        xacro 会直接失败：error: Invalid parameter "olor"
+        现在 launch 读的是 install 里的旧副本，所以还能起；
+        一旦 colcon build，question1 会因为 /robot_description 没有内容，
+        create 节点一直停在 "Waiting messages on topic [/robot_description]"。
+    (b) src 与 install 是两份不同的模型，容易误判"改了没效果"：
+          src/my_car/my_car/urdf/rebuild_robot.xacro
+              robot name="diff_car"、带 caster 球、fdir_xyz="1 ±1 0"、joint 无 effort/velocity
+          install/my_car/share/my_car/sdf/rebuild_robot.xacro
+              robot name="mecanum_car"、带 base_footprint、fdir_xyz="0.7071 ±0.7071 0"
+        launch 通过 get_package_share_directory() 取的是后者。
+    (c) question1 只桥接了 /cmd_vel；/odom、/tf、/clock、/scan 都没有桥，
+        调横移时在 rviz 里看不到车走了多少，很难判断"到底动了没"。
+    (d) 世界用 empty.sdf，其 <physics name="1ms" type="ignored">；
+        已验证可用的 Mecanum_car_world.sdf 写的是
+        <physics type="ode"> + max_step_size=0.002 + quickstep/iters=100。
+        本机 ign-physics5 只装了 dartsim/bullet/tpe 三个引擎插件，
+        "ode" 这个 type 实际不会真的切到 ODE，所以这不是横移失效的直接原因，
+        但想"完全对齐已验证配置"时可以一并对齐。
+
+
+四、修复方案
+-------------------------------------------------------------------------------
+方案 A（已实施并验证）：修 rebuild_robot.xacro 的 geometry 和摩擦参数
+    实际改动（2026-10-23 21:30 已落地，实测通过）：
+
+    A-0 全部 geometry 改成属性写法（子元素会被两个解析器丢弃，见 3.0）
+        <box size="0.4 0.2 0.1"/>
+        <cylinder radius="0.15" length="0.10"/>
+        <cylinder radius="${wheel_radius}" length="${wheel_length}"/>
+        <sphere radius="0.02"/>
+
+    A-1 <robot> 上声明 ignition 命名空间：
+          <robot name="diff_car"
+                 xmlns:xacro="http://www.ros.org/wiki/xacro"
+                 xmlns:ignition="http://ignitionrobotics.org/schema">
+
+    A-2 摩擦块（关键）：mu=1.0、mu2=0.0，fdir1 必须带 expressed_in，
+        且指向根 link base_footprint（写 chassis 会因为 lump 找不到 frame）：
+          <gazebo reference="${name}">
+            <collision>
+              <surface>
+                <friction>
+                  <ode>
+                    <mu>1.0</mu>
+                    <mu2>0.0</mu2>
+                    <fdir1 ignition:expressed_in="base_footprint">${fx} ${fy} ${fz}</fdir1>
+                  </ode>
+                </friction>
+              </surface>
+            </collision>
+          </gazebo>
+
+    A-3 实例化按"车体坐标系里的水平 ±45°"写（不需要再换算到 collision 系）：
+          <xacro:mecanum_wheel name="front_left_wheel"  ... fdir_xyz="1 -1 0" .../>
+          <xacro:mecanum_wheel name="front_right_wheel" ... fdir_xyz="1 1 0"  .../>
+          <xacro:mecanum_wheel name="back_left_wheel"   ... fdir_xyz="1 1 0"  .../>
+          <xacro:mecanum_wheel name="back_right_wheel"  ... fdir_xyz="1 -1 0" .../>
+
+    注意：本方案的下述旧版 A-1/A-2 内容（换算到 collision 系、扁平 <mu> 写法）
+    已被实测推翻，保留仅作记录，不要照抄。
+    ---------------------------------------------------------------------------
+    （历史记录，作废）
+
+    A-1 把 <gazebo reference> 的摩擦改成：
+        （install/.../rebuild_robot.xacro:101-105）
+          <gazebo reference="${name}">
+            <mu>1.0</mu>
+            <mu2>0.0</mu2>
+            <fdir1>${fx} ${fy} ${fz}</fdir1>
+          </gazebo>
+        要点：mu2 从 0.1 改 0.0；mu 显式写 1.0（转换会丢，写多少都可能丢，
+        见 A-3 的兜底建议）。
+
+    A-2 把 fdir1 换算到 collision 坐标系（关键步骤）
+        因为 collision 绕 x 轴 +90°，link 系下的目标方向要"反算"到 collision 系：
+
+          link 系想要 (0.7071, -0.7071, 0)  ->  collision 系写 (0.7071, 0,  0.7071)
+          link 系想要 (0.7071,  0.7071, 0)  ->  collision 系写 (0.7071, 0, -0.7071)
+
+        所以实例化（install 版 211-214 行）改成：
+
+          <!-- 注意：z 分量是 collision 坐标系（绕 x 转 90°）下的写法，
+               不要"顺手改成 z=0"，否则又回到现在这个 bug -->
+          <xacro:mecanum_wheel name="front_left_wheel"  xyz="0.15  0.115 -0.05"
+                              fdir_xyz="0.7071 0  0.7071" color="0.5 0 0"/>
+          <xacro:mecanum_wheel name="front_right_wheel" xyz="0.15 -0.115 -0.05"
+                              fdir_xyz="0.7071 0 -0.7071" color="0.5 0 0"/>
+          <xacro:mecanum_wheel name="back_left_wheel"   xyz="-0.15  0.115 -0.05"
+                              fdir_xyz="0.7071 0 -0.7071" color="0.5 0 0"/>
+          <xacro:mecanum_wheel name="back_right_wheel"  xyz="-0.15 -0.115 -0.05"
+                              fdir_xyz="0.7071 0  0.7071" color="0.5 0 0"/>
+
+        同时建议把宏里的 fdir_xyz 参数改名/加注释，说明它是 "collision 系下的
+        辊子方向"，避免以后有人按"车体水平面 45°"填写又踩同一个坑。
+
+    A-3（可选但更稳）：跳过 URDF 转换，直接给 Gazebo 一份 SDF 模型
+        URDF 路径无法表达 expressed_in，fdir1 永远落在 collision 系；
+        若不想要"A-2 这种依赖 rpy 的换算"，就把 Mecanum_car_world.sdf 里
+        已验证的 <model name="diff_car"> … </model> 段抽成
+        my_car/sdf/mecanum_car.sdf，然后：
+          - robot_state_publisher 仍用 xacro 生成 URDF（只用于 TF）
+          - create 改成 `-file $(share)/sdf/mecanum_car.sdf`（不再从 topic 取）
+          - 这样 fdir1 可以照抄
+            <fdir1 ignition:expressed_in="chassis">1 -1 0</fdir1>
+            完全不用换算，最不容易再错。
+        代价：模型有两份（URDF 给 rsp、SDF 给 gz），需要保证两者一致。
+
+方案 B（省事路线）：直接复现已验证的组合
+    如果 question1 的核心诉求只是"一辆能横移的小车 + 自己搭的世界"，
+    最省事的是用 car_world.launch.py + Mecanum_car_world.sdf 这套已验证配置，
+    把 question1 里需要的节点（teleop、car_node、bridge）搬过去。
+    代价：不再是 empty.sdf + 运行时 spawn 的流程。
+
+
+五、改完怎么验证
+-------------------------------------------------------------------------------
+5.1 静态检查（不用起仿真，先确认参数写对了）
+      cd ~/ros2_ws && source install/setup.bash
+      xacro install/my_car/share/my_car/sdf/rebuild_robot.xacro > /tmp/chk.urdf
+      ign sdf -p /tmp/chk.urdf > /tmp/chk.sdf
+      grep -A3 "<friction>" /tmp/chk.sdf | head -20
+
+    判据：
+      - 每个轮子都要有 <mu> 和 <mu2>
+      - 方案 A 下 fdir1 应该是 (0.7071, 0, ±0.7071)（collision 系，z 非 0 是正常的）
+      - 方案 A-3 下 fdir1 应该带 expressed_in="chassis" 且 z=0
+
+5.2 动态检查（起飞后发横移）
+    注意：car_node 会以 10 Hz 持续向 /cmd_vel 发它缓存的命令，
+    直接 ros2 topic pub /cmd_vel 会被它覆盖，两种做法任选其一：
+      (a) 发 /teleop/cmd_vel：
+          ros2 topic pub -r 20 /teleop/cmd_vel geometry_msgs/msg/Twist \
+              "{linear: {x: 0.0, y: 0.3}}"
+      (b) 临时不启动 car_node，直接发 /cmd_vel
+
+    判据：3 秒内 y 位移 >= 0.5 m，且 x 位移、yaw 基本不变。
+    想看得更直观，先按 5.3 桥接 /odom 和 /tf，再在 rviz 里看轨迹。
+
+5.3 建议顺手补上桥接（question1 目前只有 /cmd_vel）
+    参数照 car_world.launch.py:57-61 抄：
+      /clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock
+      /tf@tf2_msgs/msg/TFMessage[ignition.msgs.Pose_V
+      /odom@nav_msgs/msg/Odometry[ignition.msgs.Odometry
+      /scan@sensor_msgs/msg/LaserScan[ignition.msgs.LaserScan
+
+
+六、风险与注意事项
+-------------------------------------------------------------------------------
+1) 只改 src 不构建 = 没效果。launch 读的是 install/my_car/share/my_car/sdf/
+   下的副本，改完必须：
+     colcon build --packages-select my_car && source install/setup.bash
+2) 构建前先修 src/my_car/my_car/urdf/rebuild_robot.xacro:225 的 `olor` 拼写，
+   否则构建后 xacro 直接报错，question1 起不来（现象是 create 一直等
+   /robot_description，而不是报错，很容易看错方向）。
+3) src 与 install 现在是两份不同模型（见 3.3b），构建前先确认要以哪一份为基准，
+   否则会一次性把 install 里那份"已经调过 base_footprint / 单位化 fdir1"的内容
+   覆盖掉。
+4) 若采用方案 A-2 的换算写法，务必在文件里注释"依赖 collision rpy=90°"；
+   以后谁改了轮子的 <pose>/<origin> 旋转，必须同步重算 fdir1。
+5) mu2 设成 0.0 是基线验证过的值；如果发现车"太滑、乱飘"，再往 0.05 试，
+   不要回到 0.1 以上。
+6) teleop 侧的干扰项：teleop_node 全向模式下 a/d 发 linear.y，
+   但 key_timeout=0.1 s（teleop_node.py:41），按键重复间隔一旦超时，
+   速度会归零，表现为"横移一顿一顿"。测横移时用话题直发可排除这一项。
+7) 速度量级：teleop speed=0.8 m/s 对轮半径 0.05 m 的小车偏大，横移更容易打滑，
+   建议调试时先降到 0.2~0.3。
+8) 本方案文件放在 launch/ 下不会被 setup.py 安装（data_files 只 glob
+   *.launch.py），对构建和运行没有任何影响。
+
+
+七、本次改动清单
+-------------------------------------------------------------------------------
+  新增（仅此一个文件）：
+    src/my_car/launch/横移失效修复方案.txt
+  未修改：
+    src/**、install/**、build/**、log/** 全部未动（git status 与操作前一致）
+  已清理：
+    诊断期间启动的 gazebo/launch/teleop 进程已全部退出，
+    /tmp 下的临时探针程序已删除
+===============================================================================

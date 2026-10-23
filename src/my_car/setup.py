@@ -13,14 +13,16 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        # 两个世界都装：全向轮 + 差速轮，launch 用 world:= 选
-        (os.path.join('share', package_name, 'sdf'), glob.glob('my_car/*.sdf')),
+        (os.path.join('share', package_name, 'sdf'), glob.glob('my_car/urdf/*.sdf')),
+        (os.path.join('share', package_name, 'sdf'), glob.glob('my_car/urdf/*.xacro')),
         (os.path.join('share', package_name, 'launch'), glob.glob('launch/*.launch.py')),
         (os.path.join('share', package_name, 'config'),
+         
             glob.glob('config/*.yaml') + glob.glob('config/*.rviz')),
         # nav2 的静态地图：.yaml 是参数、.pgm 是图本体，两个都得装
         (os.path.join('share', package_name, 'maps'),
             glob.glob('maps/*.yaml') + glob.glob('maps/*.pgm')),
+
     ],
     install_requires=['setuptools'],
     zip_safe=True,

@@ -11,9 +11,12 @@
 /home/zrh/ros2_ws/install/my_car/share/ament_index/resource_index/packages/my_car
 /home/zrh/ros2_ws/install/my_car/share/my_car/package.xml
 /home/zrh/ros2_ws/install/my_car/share/my_car/sdf/Mecanum_car_world.sdf
+/home/zrh/ros2_ws/install/my_car/share/my_car/sdf/world.sdf
 /home/zrh/ros2_ws/install/my_car/share/my_car/sdf/diff_car_world.sdf
+/home/zrh/ros2_ws/install/my_car/share/my_car/sdf/rebuild_robot.xacro
 /home/zrh/ros2_ws/install/my_car/share/my_car/launch/navigation2.launch.py
 /home/zrh/ros2_ws/install/my_car/share/my_car/launch/car_world.launch.py
+/home/zrh/ros2_ws/install/my_car/share/my_car/launch/question1.launch.py
 /home/zrh/ros2_ws/install/my_car/share/my_car/launch/slam_mapping.launch.py
 /home/zrh/ros2_ws/install/my_car/share/my_car/config/mapper_params_online_async.yaml
 /home/zrh/ros2_ws/install/my_car/share/my_car/config/nav2_params.yaml

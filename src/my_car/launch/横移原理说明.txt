@@ -1,0 +1,224 @@
+===============================================================================
+麦克纳姆轮横移：为什么原来的模型横移不动（原理说明）
+适用环境：ROS 2 Humble + Ignition Gazebo 6 (Fortress) + dartsim
+相关文件：src/my_car/my_car/urdf/rebuild_robot.xacro
+          src/my_car/launch/question1.launch.py
+日期：2026-10-23
+===============================================================================
+
+
+零、一句话结论
+-------------------------------------------------------------------------------
+真实麦克纳姆轮靠"45° 辊子"把轮子的切向速度重定向；仿真里没有辊子，
+这份重定向只能靠"各向异性摩擦"模拟，而各向异性摩擦的方向 fdir1 必须
+同时满足两个条件才生效：
+
+  1) 必须带 ignition:expressed_in，否则 gz-sim 6 + dartsim 静默忽略它；
+  2) expressed_in 指向的 frame 必须真实存在于 gazebo 的模型树里。
+
+原来的模型两条都不满足（没写 expressed_in；later 改成 "chassis" 但 chassis 已被
+URDF->SDF 转换合并进 base_footprint），于是四轮摩擦退化成各向同性 ——
+前进照走，横移一点力都没有。
+
+
+一、先看真实麦克纳姆轮是怎么横移的
+-------------------------------------------------------------------------------
+一个麦克纳姆轮 = 轮毂 + 一圈与轮轴成 45° 的辊子（滚子）。
+
+                         前进方向 +x
+                              ^
+                              |
+                     ╱╱╱╱╱╱╱│╱╱╱╱╱╱╱        轮子绕 y 轴转动
+                   ╱  辊子(45°)  ╲
+                  │   轮毂       │
+                   ╲            ╱
+                     ╲╱╱╱╱╱╱╱╱
+
+  - 轮子绕轴滚动时，轮缘接触点相对地面的速度沿 ±x；
+  - 辊子可以绕自身轴自由转动，所以"沿辊子轴方向"的滑动几乎不受阻力；
+  - 于是地面只"咬住"垂直于辊子轴的那个分量，把轮子的滚动速度重定向成
+    ±45° 方向的地面反力。
+
+四个轮子按 X 型布局（对角辊子同向、相邻反向）：
+
+       左前 ↖(1,-1)        右前 ↗(1,1)
+            +------+------+
+            |             |
+            +------+------+
+       左后 ↙(1,1)         右后 ↘(1,-1)
+
+  - 四轮同向转            -> 合力沿 x  -> 前进/后退
+  - 左前+右后 一组、右前+左后 一组，两组反向 -> 横向分量叠加、纵向分量抵消 -> 横移
+  - 对角两组转向相反       -> 顺时针/逆时针原地转
+
+关键点：横移所需的横向力，完全来自"辊子方向允许自由滑、垂直于辊子的方向有摩擦"
+这个各向异性。
+
+
+二、仿真里怎么"假装"有辊子：mu / mu2 / fdir1
+-------------------------------------------------------------------------------
+SDF 的摩擦模型可以用两个系数描述方向性摩擦：
+
+    <surface><friction><ode>
+      <mu>1.0</mu>              <!-- 沿 fdir1 的摩擦系数：大 -->
+      <mu2>0.0</mu2>            <!-- 垂直于 fdir1 的摩擦系数：≈0，等于辊子能自由滑 -->
+      <fdir1>...</fdir1>        <!-- 摩擦"第一方向"，即被咬住的方向 -->
+    </ode></friction></surface>
+
+  mu2 越小，垂直方向越"滑"，辊子的效果越像真的。
+  fdir1 的方向就是"垂直于辊子轴"的方向，即上面那张图的 ±45°。
+
+                                  ┌──── 地面接触点
+                                  │
+        fdir1 (1,-1,0)  ←── 高摩擦（mu=1.0，能被地面咬住）
+            ╲
+             ╲  45°
+              ╲
+    ───────────●───────────  垂直于 fdir1 的方向：
+                 ╲           低摩擦（mu2=0），相当于辊子轴方向，自由滑动
+
+
+三、为什么"只写 fdir1"没有用 —— 摩擦方向需要一个参考坐标系
+-------------------------------------------------------------------------------
+fdir1 是一个三维向量，必须有人告诉 gazebo 这个向量是"在哪个坐标系下量出来的"。
+SDF 用 fdir1 上的属性表达：
+
+    <fdir1 ignition:expressed_in="base_footprint">1 -1 0</fdir1>
+                          ^^^^^^^^^^^^^^^^
+                          参考坐标系
+
+gz-physics 在加载模型时会做一件事（见 SDFFeatures.cc）：
+"拿 expressed_in 给的名字，去模型树里找对应的 body node，找到才设置摩擦方向帧"。
+找不到时它**不会报错中断**，只打一条 warning：
+
+    [Wrn] [SDFFeatures.cc:837] Failed to get body node for [front_left_wheel_collision],
+          not setting friction direction frame.
+
+然后这个 collision 的摩擦方向就不设置了 —— 也就是上面说的各向异性消失。
+
+  * 不写 expressed_in 的情况：更隐蔽，连这条 warning 都没有，
+    实测表现是 fdir1 直接不起作用（静默忽略）。
+
+
+四、原来的模型踩的两个坑（实测矩阵）
+-------------------------------------------------------------------------------
+测试方法：同一个 world.sdf、同一个发布器，/cmd_vel = linear.y 0.4 持续 3 秒，
+读模型世界位姿。横移正常时 y 应变化 1.0 m 以上。
+
+  fdir1 数值           expressed_in            结果
+  ------------------   ---------------------   -------------------------------
+  0.7071 0 ±0.7071     无                      y = 0.00 m（轮子基本空转）
+  0.7071 ∓0.7071 0     无                      y = 0.00 m，yaw 漂 0.53 rad
+  1 0 ±1               无                      y = 0.00 m
+  1 ∓1 0               无                      y = 0.00 m，yaw 漂 0.97 rad
+  1 ∓1 0               "chassis"               y = 0.00 m，yaw 漂 1.18 rad
+                                               + Failed to get body node 告警
+  1 ∓1 0               "base_footprint"        y = 1.45 m，yaw 漂 0.00  ← 正确
+
+  参照组：Mecanum_car_world.sdf 里的模型段（chassis 是独立 link，没有被合并），
+  写 expressed_in="chassis"，横移 y = 1.85 m，yaw 0。
+
+结论：问题不在 fdir1 的**数值**（怎么换方向都没用），而在**参考系是否有效**。
+
+
+五、chassis 为什么"不存在"了 —— URDF->SDF 的 fixed joint 合并（lumping）
+-------------------------------------------------------------------------------
+这是最反直觉的一环。xacro 里明明有 chassis：
+
+    <link name="base_footprint"/>
+    <joint name="base_footprint_joint" type="fixed">
+      <parent link="base_footprint"/>
+      <child  link="chassis"/>
+    </joint>
+
+但 gazebo 拿到的模型里没有 chassis。原因：把 URDF 转成 SDF 时（`ros_gz_sim create`
+从 /robot_description 收到字符串后内部会做这一步），sdformat 会把 **fixed joint 的
+子 link 合并进父 link**，这个特性叫 lumping。合并后的 collision 会被改名成：
+
+    base_footprint_fixed_joint_lump__chassis_collision
+    base_footprint_fixed_joint_lump__caster_wheel_collision_1
+    base_footprint_fixed_joint_lump__lidar_link_collision_2
+
+所以整条链条 base_footprint -> chassis -> head_marker / caster_wheel / lidar_link
+全部塌缩成**一个** link：base_footprint。转换结果里只剩 5 个 link
+（base_footprint + 四个轮子，轮子是 revolute joint 所以不合并）。
+
+于是 expressed_in="chassis" 就是在找一个已经不存在的名字 -> 见第四节第 5 行。
+
+两个容易混淆的地方：
+
+  - rviz 里 link 都在、gazebo 里却没有：因为 rviz / robot_state_publisher 走
+    urdfdom，**不做 lumping**；gazebo 走 sdformat，**做 lumping**。
+    同一个 URDF，两边看到的 link 树不一样，这是正常的。
+  - 想关掉 lumping：可以在 URDF 里给对应 joint 加
+        <gazebo reference="base_footprint_joint">
+          <preserveFixedJoint>true</preserveFixedJoint>
+        </gazebo>
+    但这份模型没走这条路，而是让 expressed_in 指向**根 link** base_footprint，
+    因为它永远不会被合并，且与 chassis 只差一个 0.10 m 的纯平移（rpy=0），
+    fdir1 的数值完全不用改。
+
+    注意：如果以后把 base_footprint 删掉、让 chassis 当根 link，那 expressed_in
+    必须跟着改成 "chassis"，否则又会退回到第五节这个坑。
+
+
+六、为什么"前进能走、横移不走"这两个现象能同时存在
+-------------------------------------------------------------------------------
+各向同性摩擦（fdir1 失效后的状态）下，轮子只能沿自己的滚动方向（±x）对地面施力：
+
+  - 前进：轮子滚动方向就是行进方向 -> 摩擦力全部有用 -> 车正常前进、后退。
+  - 横移：四个轮子必须产生横向（y）合力。轮子滚动只能给出 x 方向力，
+    横向分量为 0；同时轮子被迫做侧向滑移，而各向同性摩擦又"不让它滑"，
+    于是轮子被地面咬住、转不动（实测：横移命令下 4 秒只转了 0.026 rad），
+    车自然纹丝不动。
+  - yaw 漂移：横移时两组轮子的转向本来就相反（FL/BR 一组、FR/BL 一组）。
+    摩擦方向一旦不正确，两组力不再对称抵消，残差就变成绕 z 的扭矩 ->
+    车原地小幅度打转（实测 0.5~1.2 rad），人眼看上去就是"轮子在转、车在乱晃"。
+
+这也是为什么这个 bug 特别容易被误判成"teleop 没发 y"或"桥接没通"：
+x 方向一切正常，唯独 y 方向是 0。
+
+
+七、还有一个独立的坑：geometry 的写法（会导致"加载出来的不是我搭的车"）
+-------------------------------------------------------------------------------
+和横移无关，但同属 URDF->gazebo 这条链路，一并记在这里：
+
+    <cylinder><radius>0.05</radius><length>0.05</length></cylinder>   // 被丢弃
+    <cylinder radius="0.05" length="0.05"/>                          // 正确
+    <box><size>0.4 0.2 0.1</size></box>                              // 被丢弃
+    <box size="0.4 0.2 0.1"/>                                        // 正确
+    <sphere><radius>0.02</radius></sphere>                           // 被丢弃
+    <sphere radius="0.02"/>                                          // 正确
+
+URDF 规范里本来是子元素写法，但这台机器上：
+  - urdfdom（rviz 侧）报 "Cylinder shape must have both length and radius attributes"
+  - sdformat（gazebo 侧）把整个 visual / collision 静默丢弃
+结果是两边都看不到车体，gazebo 里只剩不可见的惯性块，没有碰撞体还会穿地。
+
+另外：<collision> / <visual> **不要写 name 属性**。一旦写了，lumping 会把它改名成
+xxx_fixed_joint_lump__名字_collision，<gazebo reference> 里的摩擦块就匹配不上，
+mu2 / fdir1 会凭空消失。
+
+
+八、自查清单（改完 / 换机器 / 换 gazebo 版本时）
+-------------------------------------------------------------------------------
+1) 看 fdir1 有没有被转换器保留下来：
+     xacro install/my_car/share/my_car/sdf/rebuild_robot.xacro > /tmp/a.urdf
+     ign sdf -p /tmp/a.urdf > /tmp/a.sdf
+     grep -o "<fdir1[^>]*>[^<]*</fdir1>" /tmp/a.sdf
+   期望：4 条都带 expressed_in='base_footprint'
+
+2) 看 geometry 是否还在：
+     grep -c "<collision" /tmp/a.sdf      # 期望 7
+     grep -c "<visual"    /tmp/a.sdf      # 期望 9
+
+3) 看 gazebo 日志有没有被忽略的摩擦方向：
+     ros2 launch my_car question1.launch.py 2>&1 | grep -i "friction direction"
+   出现 "Failed to get body node" 就说明 expressed_in 指向的 frame 不存在。
+
+4) 动态验证横移时**不要**直接发 /cmd_vel：
+   car_node 会以 10 Hz 用它缓存的命令覆盖 /cmd_vel。两种正确做法：
+     ros2 topic pub -r 20 /teleop/cmd_vel geometry_msgs/msg/Twist "{linear: {y: 0.3}}"
+     或临时不启动 car_node，直接发 /cmd_vel。
+   判据：3 秒内 y 位移 >= 1.0 m，且 x 位移、yaw 基本不变。
+===============================================================================
