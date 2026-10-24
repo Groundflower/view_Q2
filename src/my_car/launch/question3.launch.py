@@ -13,7 +13,6 @@ def generate_launch_description():
     executable="teleop_node",
     output='screen',
     prefix=["gnome-terminal --"],
-    arguments=['--alltoward'],
     )
     action_car = launch_ros.actions.Node(
         package="my_car",
@@ -59,6 +58,7 @@ def generate_launch_description():
     action_joint_state_publisher = launch_ros.actions.Node(
         package='joint_state_publisher',
         executable='joint_state_publisher',
+        parameters=[{'use_sim_time': True}],
     )
 
     action_slam = launch_ros.actions.Node(

@@ -13,7 +13,6 @@ def generate_launch_description():
     executable="teleop_node",
     output='screen',
     prefix=["gnome-terminal --"],
-    arguments=['--alltoward'],
     )
     action_car = launch_ros.actions.Node(
         package="my_car",
