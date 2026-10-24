@@ -1,24 +1,3 @@
-# Nav2 参数（ROS 2 Humble / Gazebo Fortress）。
-#
-# 这份文件是 nav2_bringup 官方 params/nav2_params.yaml（TurtleBot3 版）的拷贝，
-# 为了本车改掉了下面这几处，每处都注释了"为什么"，改之前请先看一遍：
-#
-#   * 坐标系：TB3 用 base_link，本车整套 TF 都是
-#       map -> odom -> base_footprint -> chassis -> lidar_link
-#     所以 bt_navigator / 两个 costmap / behavior_server 里的 robot_base_frame
-#     一律改成 base_footprint（写在 base_link 上的话 nav2 会永远等 TF 超时）。
-#   * 轮廓：TB3 是圆形的 robot_radius 0.22，本车是 0.44 x 0.28 的长方体
-#     （chassis 碰撞体 0.40 x 0.20，轮子再往外撑到 ±0.20 / ±0.14），改用 footprint 多边形。
-#   * 全向轮：AMCL 换成 OmniMotionModel，DWB 打开 max_vel_y，velocity_smoother
-#     放开 y 方向 —— Mecanum 能横移，不配这几项就是拿差速车的方式开全向车。
-#   * 雷达：SDF 里 range/min = 0.10、range/max = 10.0，AMCL 的激光范围跟着对齐。
-#
-# 速度上限：DWB 0.26 m/s / 1.0 rad/s，和 car_node.py 的 MAX_LIN 0.8、MAX_ANG 2.0
-# 不冲突（仿真里慢一点更好控），想快就改下面 controller_server 的 FollowPath 和
-# velocity_smoother 两组（必须同步改，velocity_smoother 会二次限幅）。
-#
-# 其它没动过的值就是 nav2 默认值，别当成"特意为本车调过"。
-
 amcl:
   ros__parameters:
     use_sim_time: True
@@ -35,7 +14,6 @@ amcl:
     global_frame_id: "map"
     lambda_short: 0.1
     laser_likelihood_max_dist: 2.0
-    # 和 Mecanum_car_world.sdf 里 lidar 的 <range> 对齐（原来 100.0 是按 2D 雷达上限写的）
     laser_max_range: 10.0
     laser_min_range: 0.10
     laser_model_type: "likelihood_field"
@@ -48,7 +26,6 @@ amcl:
     recovery_alpha_fast: 0.0
     recovery_alpha_slow: 0.0
     resample_interval: 1
-    # 差速模型只有 vx/vtheta；全向轮要横移，必须用 OmniMotionModel（吃 vy 和 alpha5）
     robot_model_type: "nav2_amcl::OmniMotionModel"
     save_pose_rate: 0.5
     sigma_hit: 0.2
@@ -75,8 +52,6 @@ bt_navigator:
     # nav2_bt_navigator/navigate_to_pose_w_replanning_and_recovery.xml
     # nav2_bt_navigator/navigate_through_poses_w_replanning_and_recovery.xml
     # They can be set here or via a RewrittenYaml remap from a parent launch file to Nav2.
-    # 这份列表就是 Humble 自带的那一份，一个都没删：版本对不上时缺哪个插件
-    # 启动日志里会直接报 "Failed to load library ..."，到时候按报错补。
     plugin_lib_names:
       - nav2_compute_path_to_pose_action_bt_node
       - nav2_compute_path_through_poses_action_bt_node
@@ -140,8 +115,9 @@ controller_server:
     controller_frequency: 20.0
     min_x_velocity_threshold: 0.001
     # 默认值 0.5 是"小于 0.5 m/s 的 y 速度当 0 处理"，全向车横移速度根本到不了 0.5，
-    # 那就会被一直清零（表现为"能规划出横移路径但车不动"），所以降到 0.05。
-    min_y_velocity_threshold: 0.05
+    # 那就会被一直清零（表现为"能规划出横移路径但车不动"），所以先降到 0.05；
+    # 实测窄槽里 DWB 采样出的 vy 只有 0.029 左右，0.05 仍会把它清零，因此再降到 0.02。
+    min_y_velocity_threshold: 0.02
     min_theta_velocity_threshold: 0.001
     failure_tolerance: 0.3
     progress_checker_plugin: "progress_checker"
@@ -151,10 +127,10 @@ controller_server:
     # Progress checker parameters
     progress_checker:
       plugin: "nav2_controller::SimpleProgressChecker"
-      # 0.5m/10s 对 0.26 m/s 的车正常，但绕着中间那个半径 1m 的圆柱起步时容易误判卡住，
-      # 放宽到 0.25m。
-      required_movement_radius: 0.25
-      movement_time_allowance: 10.0
+      # 全向车在 0.8m 窄槽口做横向对位时，10s 内位移常常不足 0.2m，会被判"卡住"并 abort。
+      # 放宽成 0.10m / 20s，只拦真正的停滞。
+      required_movement_radius: 0.10
+      movement_time_allowance: 20.0
     # Goal checker parameters
     #precise_goal_checker:
     #  plugin: "nav2_controller::SimpleGoalChecker"
@@ -164,15 +140,15 @@ controller_server:
     general_goal_checker:
       stateful: True
       plugin: "nav2_controller::SimpleGoalChecker"
-      xy_goal_tolerance: 0.15
-      yaw_goal_tolerance: 0.15
+      # 窄槽出口只有 0.8m、目标离墙 0.3m，0.15 的容差要求车中心贴到 15cm 内，
+      # 末端会反复对位；放宽到 20cm / 0.25rad（全向车终点朝向不敏感）。
+      xy_goal_tolerance: 0.20
+      yaw_goal_tolerance: 0.25
     # DWB parameters（全向版：x / y / theta 三个方向都有采样）
     FollowPath:
       plugin: "dwb_core::DWBLocalPlanner"
       debug_trajectory_details: True
-      # 和上面 goal checker 保持一致，DWB 自己也会用它判断"到点了"
-      min_vel_x: 0.0
-      # 全向轮的核心：y 方向可以是负的，样本里才会出现横移速度
+      min_vel_x: -0.2
       min_vel_y: -0.26
       max_vel_x: 0.26
       max_vel_y: 0.26
@@ -188,26 +164,40 @@ controller_server:
       decel_lim_x: -2.5
       decel_lim_y: -2.5
       decel_lim_theta: -3.2
-      # 20x10x20 = 4000 条轨迹/周期（20Hz），仿真里跑得动；嫌卡就砍到 10x5x20
-      vx_samples: 20
-      vy_samples: 10
-      vtheta_samples: 20
+      # 15x20x10 = 3000 条轨迹/周期（20Hz）：横移采样加密（窄槽对位要靠 vy），
+      # 旋转采样减半、vx 略减，总样本比原来 20x10x20=4000 少，仿真掉帧的压力小一些。
+      vx_samples: 15
+      vy_samples: 20
+      vtheta_samples: 10
       sim_time: 1.7
       linear_granularity: 0.05
       angular_granularity: 0.025
       transform_tolerance: 0.2
-      xy_goal_tolerance: 0.15
-      trans_stopped_velocity: 0.25
+      xy_goal_tolerance: 0.20
+      # 原值 0.25 和 max_vel_x(0.26) 几乎相等，RotateToGoal 会一直认为"平移已停止"，
+      # 在槽里提前切成纯旋转；降到 0.05，只有真正停住才交给旋转。
+      trans_stopped_velocity: 0.05
       short_circuit_trajectory_evaluation: True
       stateful: True
       critics: ["RotateToGoal", "Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
       BaseObstacle.scale: 0.02
-      PathAlign.scale: 32.0
+      # PathAlign/PathDist 原值 32。实测卡在槽外时，车的朝向是"目标方向"，而全局路径要求
+      # 先横向（东）绕行，32 的权重把所有位移轨迹压到接近 0 分，结果零速轨迹（不动）反而
+      # 最不坏 —— 局部轨迹终点一直等于当前位置。降到 8 / 16，让横移跟路径不再被重罚。
+      PathAlign.scale: 8.0
       PathAlign.forward_point_distance: 0.1
-      GoalAlign.scale: 24.0
+      # GoalAlign 原值 24 会强烈偏好"车头朝目标"的轨迹。槽内目标在出口反方向时，
+      # 路径要求先背离目标出槽，两者互相否决，结果只剩原地左右转（实测 cmd_wz 在 ±1.0 来回）。
+      # 降到 8，让 PathAlign/PathDist 主导；GoalDist 你已降到 5.0，保持。
+      GoalAlign.scale: 8.0
       GoalAlign.forward_point_distance: 0.1
-      PathDist.scale: 32.0
-      GoalDist.scale: 24.0
+      PathDist.scale: 16.0
+      GoalDist.scale: 5.0
+      # 车在原地来回磨超过 oscillation_reset_dist 之后，Oscillation 会把所有"继续移动"
+      # 的轨迹判成负分，零速轨迹胜出、从此再也动不了。把重置门槛从默认 0.05 降到 0.02，
+      # 让它更容易解除。
+      Oscillation.oscillation_reset_dist: 0.02
+      Oscillation.oscillation_reset_angle: 0.10
       RotateToGoal.scale: 32.0
       RotateToGoal.slowing_factor: 5.0
       RotateToGoal.lookahead_time: -1.0
@@ -232,8 +222,8 @@ local_costmap:
       plugins: ["voxel_layer", "inflation_layer"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        cost_scaling_factor: 3.0
-        inflation_radius: 0.55
+        cost_scaling_factor: 5.0
+        inflation_radius: 0.26
       voxel_layer:
         plugin: "nav2_costmap_2d::VoxelLayer"
         enabled: True
@@ -290,15 +280,13 @@ global_costmap:
         map_subscribe_transient_local: True
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        cost_scaling_factor: 3.0
-        inflation_radius: 0.55
+        cost_scaling_factor: 5.0
+        inflation_radius: 0.30
       always_send_full_costmap: True
 
 map_server:
   ros__parameters:
     use_sim_time: True
-    # 由 launch 的 map:= 参数覆盖（RewrittenYaml 写进 yaml_filename），
-    # 默认值 navigation2.launch.py 指向 share/my_car/maps/my_map.yaml。
     yaml_filename: ""
 
 map_saver:

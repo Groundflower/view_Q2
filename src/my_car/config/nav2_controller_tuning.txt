@@ -1,0 +1,190 @@
+nav2 控制器参数调整说明（针对 maps/my_map.yaml + sdf/world.sdf）
+================================================================
+调整日期：2026-10-25
+改动文件：config/nav2_params.yaml（已同步到 install/my_car/share/my_car/config/）
+说明文件：config/nav2_controller_tuning.txt（本文件）
+
+一、为什么调
+----------------------------------------------------------------
+地图 my_map（160x159 @0.05，origin -0.985/-0.988）里有一个关键难点：
+x 约 3.5~4.5、y 约 3.1~3.9 的"槽"，自由宽度只有 0.8m，北(3.9)/南(3.1)/西(3.5)
+三面是 0.4m 高的 box_3 / box_4 / box_5，只有东侧一个开口。
+车体 footprint 0.44 x 0.28（inscribed 0.14），进得去，但余量很小。
+
+实测（2026-10-25 00:53 那次，参数未改，脚本按顺序发 7 个目标）：
+  g1~g4(进槽) / g6(出槽) / g7 全部 SUCCEEDED；
+  只有 g5（槽内 (4.19,3.54) -> (0.02,0.09)）失败：150s 只走 0.06m。
+g5 期间 /cmd_vel 的真实数据：
+   cmd_vx  最大 0.050（vx>0 的样本 25/580 ≈ 4%）
+   cmd_vy  最大 0.029（低于当时的 min_y_velocity_threshold 0.05，等于被清零）
+   cmd_wz  在 ±1.0 rad/s 之间来回换向
+   odom    在 (4.28~4.40, 3.41~3.55) 原地晃
+结论：车没有被要求前进，控制器一直只输出"原地左右转"。
+原因链：目标在出口的反方向 -> 路径要求先背离目标向东退出槽 ->
+        DWB 采样里 vx>=0 的轨迹全撞西墙（被 BaseObstacle 判非法）->
+        横向分量又低于阈值被清零 -> 唯一合法解只剩原地旋转 ->
+        10s 位移 < 0.2m -> progress_checker 判"卡住" -> abort -> 重试 -> 循环。
+
+因此本次调参只围绕三件事：
+  (1) 让横向/倒车这类"非前进"动作真正能被执行；
+  (2) 别把"窄处对位"误判成"卡死"；
+  (3) 降低"朝目标"对轨迹的拉扯，让车愿意先沿路径走。
+
+二、改了什么（11 项，全部在 controller_server 下）
+----------------------------------------------------------------
+#   参数                                        你上一版   本次改为   理由
+1   min_y_velocity_threshold                    0.05       0.02       实测 DWB 在窄槽采样出的 vy 只有
+                                                                      0.029，0.05 会把它清零，横移等于失效。
+2   progress_checker.required_movement_radius   0.20       0.10       窄槽口横向对位 10s 内常走不到 0.2m，
+3   progress_checker.movement_time_allowance    10.0       20.0       会误判卡死。改成 0.10m/20s，只拦真停滞。
+4   general_goal_checker.xy_goal_tolerance      0.15       0.20       槽口只有 0.8m、目标离墙 0.3m，
+5   general_goal_checker.yaw_goal_tolerance     0.15       0.25       0.15 的容差要求车中心贴到 15cm 内，
+                                                                      末端会反复对位；全向车终点朝向不敏感。
+6   FollowPath.xy_goal_tolerance                0.15       0.20       与 4 保持一致（DWB 自己判断到点也用它）。
+7   FollowPath.trans_stopped_velocity           0.25       0.05       原值几乎等于 max_vel_x(0.26)，
+                                                                      RotateToGoal 会一直认为"平移已停止"，
+                                                                      进槽后提前切成纯旋转。
+8   FollowPath.vx_samples                       20         15         15x20x10 = 3000 条/周期，比原来的
+9   FollowPath.vy_samples                       10         20         4000 少（仿真掉帧时控制循环常掉到
+10  FollowPath.vtheta_samples                   20         10         10Hz），同时把横移采样加密，因为
+                                                                      窄槽对位靠的就是 vy；旋转采样减半。
+11  FollowPath.GoalAlign.scale                  24.0       8.0        24 会强烈偏好"车头朝目标"的轨迹，
+                                                                      与"先背离目标出槽"的路径互相否决，
+                                                                      结果只剩原地左右转。让 PathAlign/
+                                                                      PathDist(32) 主导。
+
+三、没动的项（连同理由，避免下次又被改回去）
+----------------------------------------------------------------
+* min_vel_x: -0.2
+  你已经从 0.0 改成 -0.2（允许倒车），这是本次调参的前提之一，保持不要改回 0。
+* GoalDist.scale: 5.0（你已从 24 降下来）—— 与第 11 项同方向，保持。
+* PathAlign.scale / PathDist.scale: 32.0 —— 让"沿路径"优先，配合第 11 项。
+* RotateToGoal.scale 32 / slowing_factor 5 / lookahead_time -1 —— 到点后仍需要摆正朝向。
+* acc_lim_x/y 2.5、acc_lim_theta 3.2、sim_time 1.7 —— 速度上限只有 0.26 m/s，够用，不动。
+* local_costmap: cost_scaling_factor 5.0 / inflation_radius 0.26
+  global_costmap: cost_scaling_factor 5.0 / inflation_radius 0.30
+  这两组你已经调过，保持。注意：inflation 只影响代价梯度，不改变"footprint 碰到障碍
+  = 非法"的硬窗口（那个由 footprint 半宽 0.14 + 障碍决定，槽内约 ±12cm），所以靠调
+  inflation 无法让车"更敢进槽"，只能靠第 1/2/7/11 项让它愿意动。
+* velocity_smoother: max/min_velocity [0.26]/[-0.26]、deadband 0、velocity_timeout 1.0
+  min_velocity 的 x 已经是 -0.26，不会把倒车速度削掉，不动。
+
+四、风险与副作用（出现就按"回滚"改回去）
+----------------------------------------------------------------
+1) min_y_velocity_threshold 0.02 偏小：静止时 AMCL 的定位噪声可能让车有轻微横向抖动。
+   若观察到位姿不动但车在 y 方向慢慢漂，回调到 0.03。
+2) progress_checker 0.10/20s：真正卡住时要 20s 才触发恢复，比原来慢 10s。
+   若觉得恢复太迟钝，可只把 movement_time_allowance 回调到 15.0。
+3) 终点容差 0.20m / 0.25rad：停车精度下降。若任务要求精确停点（±10cm 内），
+   把 4/5/6 三项回调，但要接受末端对位时间变长。
+4) GoalAlign 8.0：车更"贴路径"、少"对准目标"，终点朝向误差可能变大，
+   由 RotateToGoal 收尾修正（受 yaw_goal_tolerance 0.25 限制）。
+5) 采样 15x20x10：横移分辨率 0.52/20 = 0.026 m/s，够用；vx 分辨率变粗，
+   高速段的轨迹平滑度略降（速度上限低，影响很小）。
+
+五、怎么验证（重点看 g5 那一格）
+----------------------------------------------------------------
+1. 启动（参数已同步到 install，直接 launch 即可）：
+       ros2 launch my_car questionADD.launch.py
+   若你重新 colcon build 过，install 会被覆盖成 src 的最新版本，同样是这份参数。
+2. 启动前确认没有上一轮的残留（有残留会出现"车自己乱撞/地图错位"）：
+       pgrep -a "ign gazebo|component_container_isolated|rviz2|parameter_bridge"
+   必须为空再启动。
+3. 复刻这 7 个目标，尤其第 5 个：
+       (1.99,1.90) (5.54,2.35) (5.50,3.68) (4.06,3.45)
+       (0.02,0.09)  <- 槽内出发去西南，这一格是判据
+       (5.40,3.44) (1.64,1.13)
+4. 导航过程中盯 /cmd_vel，期望看到"变化"，而不是像之前那样 vx 恒 0：
+       ros2 topic echo /cmd_vel
+   通过的标准：
+     * 出现 vx < 0（倒车退出槽）或 |vy| > 0.05（横移）；
+     * wz 不再长时间在 ±1.0 之间来回换向；
+     * 10s 内位移能稳定超过 0.10m，不再触发 "Failed to make progress"。
+5. 若 g5 仍然失败，说明卡点不在"方向/判据"而在几何余量，下一步（本次未做）：
+     * 把 footprint 的 y 半宽 0.14 改成真实值 0.15（现在比车体窄 1cm，会低估车宽）；
+     * 或给槽内目标加一个"朝出口"的中间点（先到 (5.40,3.44) 再到最终点）；
+     * 或把槽内目标点放在槽口外 0.2~0.3m。
+
+六、怎么回滚
+----------------------------------------------------------------
+逐项把"本次改为"的数字改回"你上一版"即可：
+    min_y_velocity_threshold              0.02  -> 0.05
+    required_movement_radius              0.10  -> 0.20
+    movement_time_allowance               20.0  -> 10.0
+    general_goal_checker.xy_goal_tolerance  0.20 -> 0.15
+    general_goal_checker.yaw_goal_tolerance 0.25 -> 0.15
+    FollowPath.xy_goal_tolerance          0.20  -> 0.15
+    FollowPath.trans_stopped_velocity     0.05  -> 0.25
+    FollowPath.vx_samples                 15    -> 20
+    FollowPath.vy_samples                 20    -> 10
+    FollowPath.vtheta_samples             10    -> 20
+    FollowPath.GoalAlign.scale            8.0   -> 24.0
+改完记得同步（否则 launch 仍用旧值）：
+    cp src/my_car/config/nav2_params.yaml install/my_car/share/my_car/config/
+
+七、另一个与控制器无关但会影响导航的问题（仅记录，本次没改）
+----------------------------------------------------------------
+运行时 amcl / local_costmap / global_costmap 会大量打印：
+    Message Filter dropping message: frame 'lidar_link' at time ... for reason
+    'the timestamp on the message is earlier than all the data in the transform cache'
+即 /scan 的时间戳早于 TF 缓存里最早的数据，激光被丢弃。后果是障碍层稀疏、
+AMCL 更新变少（实测 g5 结束时 AMCL 与 odom 已差 0.18m），会放大窄处的问题。
+它的修复方向是让 /tf 与 /scan 的时间戳对齐（Gazebo OdometryPublisher 的 tf 发布
+频率/延迟、或 transform_tolerance），属于另一个独立课题。
+
+八、第二轮调整（critic 权重，2026-10-25 03:4x）
+----------------------------------------------------------------
+依据：无头复现（目标 (4.09,3.41)，从原点出发）抓到的两条数据：
+    /plan      n=92 len=2.36 head=(4.10,2.01)->(4.19,2.04) tail=(4.09,3.41)
+               全局路径本身是对的：先向东绕南墙东端，再北上进槽。
+    /local_plan 每个周期的轨迹终点都等于当前位置 (4.11,2.02)
+               即 DWB 一直选择"零位移"轨迹，车不是被墙挡住，是控制器不肯动。
+               （车卡住前已在 (4.10~4.26, 1.93~2.05) 来回磨了约 60 秒）
+
+改动：
+    PathAlign.scale: 32.0 -> 8.0
+    PathDist.scale:  32.0 -> 16.0
+        原值把"沿路径"压得过重：车头朝目标、路径要求先横向绕行时，所有位移轨迹得分
+        都被压到接近 0，零速轨迹（0 分）反而最不坏。全向车本来可以横移跟路径。
+    Oscillation.oscillation_reset_dist:  默认 0.05 -> 0.02
+    Oscillation.oscillation_reset_angle: 默认 0.2  -> 0.10
+        长时间在小范围来回后，Oscillation 会把后续移动轨迹判负分，导致"一旦卡住就
+        再也动不了"。降低重置门槛，让它更容易解除。
+    未动：GoalAlign 8.0、GoalDist 5.0、BaseObstacle 0.02、RotateToGoal 32/5/-1。
+
+风险：
+    PathAlign/PathDist 降低后，车会更"抄近道"、贴障碍走；窄处若出现擦墙，
+    把它们回调到 16/24。
+    Oscillation 门槛降低后，若出现真正的来回摆动（原地左右晃），说明要反过来调大。
+
+附：地图质量问题（本次没改，但会影响全局规划）
+    当前 my_map.pgm 里像素 205 占比很大（槽的南北墙上有 1/3 是 205）。
+    nav2 map_server 的 trinary 判定 occ=(255-px)/255，205 -> 0.196 < free_thresh 0.25
+    => 全部算 free；整张图的统计是 occupied 5.3% / free 94.7% / unknown 0.0%。
+    结果是每面墙只剩上下两条 1 格厚的边，中间是"free 的假缝"。
+    这次全局路径恰好绕开了，但换一个目标就可能规划出穿墙路径。
+    根治办法：重建地图（建图时扫慢一点/多绕一圈），或把地图后处理
+    （把紧贴 occupied 的 205 填成 occupied）。这属于地图数据问题，不是控制器参数。
+
+九、第二轮验证结果（2026-10-25 03:5x，无头仿真，目标 (4.09,3.41)）
+----------------------------------------------------------------
+结论：**Goal succeeded（65 秒到达）**，这是这条路径第一次跑通。
+
+过程（odom 实测）：
+    0~20s   正常行驶，vx=0.26，从 (0,0) 到 (3.78,1.96)
+    20~48s  在 (4.12,1.95) 停滞约 28 秒（南墙东南角附近），期间触发 1 次
+            "Failed to make progress"，cmd 接近 0
+    48~65s  自行恢复：用横移 + 旋转绕过南墙东端
+            （cmd_vy=-0.151、cmd_wz=1.0），经 (4.59,2.23) -> (4.54,3.14)
+            -> Reached the goal
+对比改之前：/local_plan 的轨迹终点永远等于当前位置（纯零速），现在会先向东、
+再向北、再向西，最终到点。
+
+仍存在的问题：南墙东南角 (4.12,1.95) 处还有约 28 秒的"局部极小"停顿
+（PathAlign/PathDist 降权后能自己出来，但耗时）。
+原因与地图质量有关：南墙在地图上中间是 205（被判 free）的"假缝"，
+路径会贴着这面墙的角点走，DWB 在角点附近可用轨迹很少。
+要进一步消除，优先级：
+    1) 修地图（见第八节末尾）：重建或把紧贴 occupied 的 205 填成 occupied；
+    2) 或把 PathAlign 再降到 4~6、Oscillation.oscillation_reset_dist 降到 0.01；
+    3) 或给槽口前加一个中间路点，别让全局路径贴着墙角拐 90 度。

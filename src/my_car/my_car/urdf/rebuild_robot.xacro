@@ -33,12 +33,8 @@
                  iyy="0.01416667" iyz="0"
                  izz="0.01666667"/>
       </inertial>
-      <!-- geometry 必须用属性写法（radius= / length= / size=）：
-           Humble 的 urdfdom 和 gazebo 的 URDF->SDF 转换都不认 SDF 风格的子元素写法，
-           写成 <cylinder><radius>..</radius></cylinder> 会被静默丢弃，
-           结果 rviz 和 gazebo 里都看不到车体。 -->
       <collision>
-        <geometry><box size="0.4 0.2 0.1"/></geometry>
+        <geometry><cylinder radius="0.15" length="0.10"/></geometry>
       </collision>
       <visual>
         <geometry><cylinder radius="0.15" length="0.10"/></geometry>

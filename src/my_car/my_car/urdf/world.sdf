@@ -89,7 +89,7 @@
 
     <model name="box_3">
       <static>true</static>
-      <pose>4.0 4.0 0.2 0 0 0</pose>
+      <pose>4.0 4.3 0.2 0 0 0</pose>
       <link name="link">
         <collision name="collision">
           <geometry><box><size>1 0.2 0.4</size></box></geometry>
@@ -103,7 +103,7 @@
     </model>
     <model name="box_4">
       <static>true</static>
-      <pose>4.0 3.0 0.2 0 0 0</pose>
+      <pose>4.0 2.7 0.2 0 0 0</pose>
       <link name="link">
         <collision name="collision">
           <geometry><box><size>1 0.2 0.4</size></box></geometry>
