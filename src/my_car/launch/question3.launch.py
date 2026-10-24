@@ -27,9 +27,7 @@ def generate_launch_description():
             '/scan@sensor_msgs/msg/LaserScan[ignition.msgs.LaserScan',
             '/odom@nav_msgs/msg/Odometry[ignition.msgs.Odometry',
             '/tf@tf2_msgs/msg/TFMessage[ignition.msgs.Pose_V',
-            #'/tf_static@tf2_msgs/msg/TFMessage[ignition.msgs.Pose_V',
             '/cmd_vel@geometry_msgs/msg/Twist]ignition.msgs.Twist',
-            #'/initialpose@geometry_msgs/msg/PoseWithCovarianceStamped]ignition.msgs.PoseWithCovariance',
         ],
         output='screen',
     )
