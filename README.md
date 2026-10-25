@@ -24,5 +24,6 @@
   - source install/setup.sh
   - -colcon build
   - ros2 launch my_car questionADD.launch.py
+  - 发布pose使用2D_Pose_Estimate，发布goal使用**2D_Goal_Pose**,不是**Nav2_Goal**!!!,用错会导致临时路点节点失效
 
 
