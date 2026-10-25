@@ -39,6 +39,7 @@ setup(
         'console_scripts': [
             'car_node = my_car.car_node:main',
             'teleop_node = my_car.teleop_node:main',
+            'mid_pos_send = my_car.mid_pos_send:main',
         ],
     },
 )
